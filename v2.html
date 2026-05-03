@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>广东红中麻将小助手 v2</title>
+  <style>
+    * { box-sizing: border-box; }
+    html { -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #f2f3f5;
+      color: #222;
+      padding: max(12px, env(safe-area-inset-top)) 12px max(18px, env(safe-area-inset-bottom));
+    }
+    .app {
+      width: 100%;
+      max-width: 940px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.08);
+    }
+    h1 { font-size: 24px; margin: 0 0 8px; line-height: 1.25; }
+    .subtitle { color: #555; margin-bottom: 16px; line-height: 1.6; font-size: 15px; }
+    .section-title { font-weight: 700; margin: 18px 0 8px; }
+    .tiles { display: grid; grid-template-columns: repeat(9, 1fr); gap: 8px; }
+    button.tile {
+      width: 100%;
+      min-width: 0;
+      height: 58px;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      background: #fff;
+      font-size: 18px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0,0,0,.06);
+      touch-action: manipulation;
+    }
+    button.tile:active { transform: scale(.97); background: #f7f7f7; }
+    .selected {
+      min-height: 72px;
+      padding: 12px;
+      border-radius: 14px;
+      background: #fafafa;
+      border: 1px dashed #ccc;
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+      align-items: center;
+    }
+    .tile-wrap { position: relative; }
+    .count {
+      position: absolute;
+      right: -5px;
+      top: -7px;
+      background: #222;
+      color: white;
+      border-radius: 999px;
+      font-size: 11px;
+      padding: 1px 5px;
+    }
+    .actions {
+      margin-top: 14px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    .main-btn, .ghost-btn {
+      border: 0;
+      border-radius: 14px;
+      padding: 13px 12px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
+    .main-btn { background: #222; color: #fff; }
+    .ghost-btn { background: #eee; color: #222; }
+    .main-btn:active, .ghost-btn:active { transform: scale(.98); }
+    .result {
+      margin-top: 16px;
+      padding: 14px;
+      border-radius: 16px;
+      background: #f7f7ff;
+      border: 1px solid #ddddff;
+      line-height: 1.65;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .danger { color: #b00020; font-weight: 700; }
+    .good { color: #006b3c; font-weight: 700; }
+    .red { color: #c60000; font-weight: 700; }
+    .small { color: #777; font-size: 13px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 14px;
+      min-width: 680px;
+    }
+    th, td { border-bottom: 1px solid #eee; padding: 8px; text-align: left; vertical-align: top; }
+    th { background: #fafafa; }
+    .note { color: #777; font-size: 13px; margin-top: 10px; line-height: 1.5; }
+
+    @media (max-width: 520px) {
+      body { padding: 8px 8px max(14px, env(safe-area-inset-bottom)); }
+      .app {
+        border-radius: 16px;
+        padding: 14px;
+        box-shadow: none;
+      }
+      h1 { font-size: 21px; }
+      .subtitle { font-size: 13px; line-height: 1.5; }
+      .section-title { margin: 16px 0 8px; }
+      .tiles { grid-template-columns: repeat(7, 1fr); gap: 7px; }
+      button.tile {
+        height: 52px;
+        font-size: 16px;
+        border-radius: 11px;
+      }
+      .selected {
+        grid-template-columns: repeat(7, 1fr);
+        gap: 7px;
+        padding: 10px;
+      }
+      .actions {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+      }
+      .main-btn, .ghost-btn {
+        padding: 13px 10px;
+        font-size: 14px;
+        border-radius: 13px;
+      }
+      .result {
+        font-size: 14px;
+        padding: 12px;
+        border-radius: 14px;
+      }
+      table { font-size: 13px; min-width: 620px; }
+    }
+
+    @media (max-width: 390px) {
+      .tiles { grid-template-columns: repeat(6, 1fr); }
+      .selected { grid-template-columns: repeat(6, 1fr); }
+      button.tile { height: 50px; font-size: 15px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <h1>广东红中麻将小助手 v2</h1>
+    <div class="subtitle">
+      规则：红中是万能牌；不算番；不能碰红中；4个红中直接胡；无番数限制。<br>
+      <b>推荐出牌：</b>输入 14 / 11 / 8 / 5 / 2 张。<br>
+      <b>检查听牌、碰牌分析：</b>输入 13 / 10 / 7 / 4 / 1 张。<br>
+      系统会根据张数自动判断你已有几组完成面子。
+    </div>
+
+    <div class="section-title">当前手牌：<span id="handCount">0</span>张</div>
+    <div id="selected" class="selected">还没有选择牌</div>
+
+    <div class="actions">
+      <button class="main-btn" onclick="recommendDiscard()">推荐出牌</button>
+      <button class="main-btn" onclick="checkCurrentTenpai()">检查听牌</button>
+      <button class="main-btn" onclick="analyzePong()">碰了之后更优吗</button>
+      <button class="ghost-btn" onclick="undoTile()">撤销一张</button>
+      <button class="ghost-btn" onclick="clearHand()">清空</button>
+    </div>
+
+    <div id="result" class="result">结果会显示在这里。</div>
+
+    <div class="section-title">万子</div>
+    <div class="tiles" id="wan"></div>
+
+    <div class="section-title">筒子</div>
+    <div class="tiles" id="tong"></div>
+
+    <div class="section-title">条子</div>
+    <div class="tiles" id="tiao"></div>
+
+    <div class="section-title">红中</div>
+    <div class="tiles" id="hongzhong"></div>
+
+    
+
+    <div class="note">
+      v2说明：支持自动识别已完成面子数、检查听牌、碰牌分析、摸牌替换。仍然优先保证实战速度，不输入牌河和副露明细。
+    </div>
+  </div>
+
+<script>
+  const tileNames = [];
+  for (let i = 1; i <= 9; i++) tileNames.push(i + '万');
+  for (let i = 1; i <= 9; i++) tileNames.push(i + '筒');
+  for (let i = 1; i <= 9; i++) tileNames.push(i + '条');
+  tileNames.push('东','南','西','北','发','白','红中');
+
+  const hand = [];
+  let replaceMode = false;
+  let lastDiscard = null;
+
+  function getFixedMeldsForDiscardMode(size) {
+    if (![14, 11, 8, 5, 2].includes(size)) return null;
+    return (14 - size) / 3;
+  }
+
+  function getFixedMeldsForWaitingMode(size) {
+    if (![13, 10, 7, 4, 1].includes(size)) return null;
+    return (13 - size) / 3;
+  }
+
+  function tileLabel(id) {
+    return id === 33 ? '<span class="red">中</span>' : tileNames[id];
+  }
+
+  function countTiles(arr) {
+    const counts = Array(34).fill(0);
+    arr.forEach(id => counts[id]++);
+    return counts;
+  }
+
+  function renderButtons(containerId, ids) {
+    const box = document.getElementById(containerId);
+    box.innerHTML = '';
+    ids.forEach(id => {
+      const btn = document.createElement('button');
+      btn.className = 'tile';
+      btn.innerHTML = tileLabel(id);
+      btn.onclick = () => addTile(id);
+      box.appendChild(btn);
+    });
+  }
+
+  function init() {
+    renderButtons('wan', [0,1,2,3,4,5,6,7,8]);
+    renderButtons('tong', [9,10,11,12,13,14,15,16,17]);
+    renderButtons('tiao', [18,19,20,21,22,23,24,25,26]);
+    renderButtons('hongzhong',[33]);
+    updateView();
+  }
+
+  function addTile(id) {
+    if (replaceMode && lastDiscard !== null) {
+      const idx = hand.indexOf(lastDiscard);
+      if (idx >= 0) hand.splice(idx, 1);
+      hand.push(id);
+      replaceMode = false;
+      lastDiscard = null;
+      updateView();
+      recommendDiscard();
+      return;
+    }
+
+    if (hand.length >= 14) {
+      alert('最多选择14张牌');
+      return;
+    }
+    if (hand.filter(x => x === id).length >= 4) {
+      alert('同一种牌最多4张');
+      return;
+    }
+    hand.push(id);
+    updateView();
+  }
+
+  function removeOne(id) {
+    const idx = hand.indexOf(id);
+    if (idx >= 0) hand.splice(idx, 1);
+    updateView();
+  }
+
+  function undoTile() {
+    hand.pop();
+    updateView();
+  }
+
+  function clearHand() {
+    hand.length = 0;
+    replaceMode = false;
+    lastDiscard = null;
+    updateView();
+    document.getElementById('result').innerHTML = '结果会显示在这里。';
+  }
+
+  function updateView() {
+    document.getElementById('handCount').textContent = hand.length;
+    const selected = document.getElementById('selected');
+    if (hand.length === 0) {
+      selected.textContent = '还没有选择牌';
+      return;
+    }
+    const counts = countTiles(hand);
+    selected.innerHTML = '';
+    for (let id = 0; id < 34; id++) {
+      if (counts[id] > 0) {
+        const wrap = document.createElement('div');
+        wrap.className = 'tile-wrap';
+        const btn = document.createElement('button');
+        btn.className = 'tile';
+        btn.innerHTML = tileLabel(id);
+        btn.onclick = () => removeOne(id);
+        wrap.appendChild(btn);
+        if (counts[id] > 1) {
+          const badge = document.createElement('span');
+          badge.className = 'count';
+          badge.textContent = counts[id];
+          wrap.appendChild(badge);
+        }
+        selected.appendChild(wrap);
+      }
+    }
+  }
+
+  function recommendDiscard() {
+    const result = document.getElementById('result');
+    const fixedMelds = getFixedMeldsForDiscardMode(hand.length);
+    if (fixedMelds === null) {
+      result.innerHTML = '<span class="danger">当前张数不能用于推荐出牌。</span><br><span class="small">推荐出牌请录入 14 / 11 / 8 / 5 / 2 张。</span>';
+      return;
+    }
+
+    const counts = countTiles(hand);
+    if (counts[33] >= 4) {
+      result.innerHTML = '<span class="good">你有4个红中，按你们规则可以直接胡！</span>';
+      return;
+    }
+    if (isWinningWithFixed(counts, fixedMelds)) {
+      result.innerHTML = `<div>系统判断：你已有 <b>${fixedMelds}</b> 组完成面子。</div><span class="good">这手牌已经可以胡了，不用打。</span>`;
+      return;
+    }
+
+    const discards = [];
+    for (let id = 0; id < 34; id++) {
+      if (counts[id] === 0) continue;
+      const afterDiscard = counts.slice();
+      afterDiscard[id]--;
+      const winInfo = getWinningDrawsWithFixed(afterDiscard, fixedMelds);
+      const score = evaluateFast(afterDiscard, fixedMelds);
+      const improveInfo = getImprovingDraws(afterDiscard, score, fixedMelds);
+      discards.push({ id, isTenpai: winInfo.total > 0, winNames: winInfo.names, winTotal: winInfo.total, score, improveNames: improveInfo.names, improveTotal: improveInfo.total });
+    }
+
+    discards.sort((a, b) => {
+      if (a.isTenpai !== b.isTenpai) return b.isTenpai - a.isTenpai;
+      if (a.winTotal !== b.winTotal) return b.winTotal - a.winTotal;
+      if (a.score !== b.score) return b.score - a.score;
+      if (a.improveTotal !== b.improveTotal) return b.improveTotal - a.improveTotal;
+      return a.id - b.id;
+    });
+
+    const best = discards[0];
+    lastDiscard = best.id;
+
+    let html = `<div>系统判断：你已有 <b>${fixedMelds}</b> 组完成面子。</div>`;
+    html += `<div>建议打：<span class="good">${tileNames[best.id]}</span></div>`;
+    if (best.isTenpai) {
+      html += `<div class="good">打出后进入听牌！</div>`;
+      html += `<div>可胡：${best.winNames.join('、')}，共约 <b>${best.winTotal}</b> 张。</div>`;
+    } else {
+      html += `<div>当前还未能一打听牌。有效改善进张约 <b>${best.improveTotal}</b> 张。</div>`;
+      html += `<div>改善牌：${best.improveNames.length ? best.improveNames.join('、') : '暂无'}</div>`;
+    }
+
+    html += `<div style="margin-top:10px;"><button class="ghost-btn" onclick="enableReplaceMode(${best.id})">我打出了 ${tileNames[best.id]} → 下一摸自动替换</button></div>`;
+    html += '<table><tr><th>候选弃牌</th><th>结果</th><th>听口 / 改善牌</th><th>数量</th><th>评分</th></tr>';
+    discards.slice(0, 5).forEach(d => {
+      const resultText = d.isTenpai ? '<span class="good">听牌</span>' : '未听';
+      const listText = d.isTenpai ? d.winNames.join('、') : (d.improveNames.join('、') || '-');
+      const numText = d.isTenpai ? d.winTotal : d.improveTotal;
+      html += `<tr><td>${tileNames[d.id]}</td><td>${resultText}</td><td>${listText}</td><td>${numText}</td><td>${d.score}</td></tr>`;
+    });
+    html += '</table>';
+    if (discards.length > 5) html += `<div class="small">仅显示前5个候选，共计算 ${discards.length} 个方案。</div>`;
+    result.innerHTML = html;
+  }
+
+  function checkCurrentTenpai() {
+    const result = document.getElementById('result');
+    const fixedMelds = getFixedMeldsForWaitingMode(hand.length);
+    if (fixedMelds === null) {
+      result.innerHTML = '<span class="danger">当前张数不能用于检查听牌。</span><br><span class="small">检查听牌请录入 13 / 10 / 7 / 4 / 1 张。</span>';
+      return;
+    }
+
+    const counts = countTiles(hand);
+    const winInfo = getWinningDrawsWithFixed(counts, fixedMelds);
+    const score = evaluateFast(counts, fixedMelds);
+    const improveInfo = getImprovingDraws(counts, score, fixedMelds);
+
+    if (winInfo.total > 0) {
+      result.innerHTML = `<div>系统判断：你已有 <b>${fixedMelds}</b> 组完成面子。</div><div class="good">� 当前已经听牌！</div><div>可胡：${winInfo.names.join('、')}，共约 <b>${winInfo.total}</b> 张。</div>`;
+    } else {
+      result.innerHTML = `<div>系统判断：你已有 <b>${fixedMelds}</b> 组完成面子。</div><div>当前还没有听牌。</div><div>有效改善进张约 <b>${improveInfo.total}</b> 张。</div><div>改善牌：${improveInfo.names.length ? improveInfo.names.join('、') : '暂无'}</div>`;
+    }
+  }
+
+  function analyzePong() {
+    const result = document.getElementById('result');
+    const fixedMelds = getFixedMeldsForWaitingMode(hand.length);
+    if (fixedMelds === null) {
+      result.innerHTML = '<span class="danger">当前张数不能用于碰牌分析。</span><br><span class="small">碰牌分析请录入 13 / 10 / 7 / 4 / 1 张。</span>';
+      return;
+    }
+
+    const counts = countTiles(hand);
+    const pairIds = [];
+    for (let id = 0; id < 33; id++) {
+      if (counts[id] >= 2) pairIds.push(id);
+    }
+
+    if (pairIds.length === 0) {
+      result.innerHTML = '<span class="danger">当前没有可碰的对子。</span><br><span class="small">红中不能碰，所以不会纳入碰牌分析。</span>';
+      return;
+    }
+
+    const noPongWin = getWinningDrawsWithFixed(counts, fixedMelds);
+    const noPongScore = evaluateFast(counts, fixedMelds);
+    const noPongImprove = getImprovingDraws(counts, noPongScore, fixedMelds);
+    const pongPlans = [];
+
+    pairIds.forEach(pongId => {
+      const afterPong = counts.slice();
+      afterPong[pongId] -= 2;
+      const discardPlans = [];
+      for (let discard = 0; discard < 34; discard++) {
+        if (afterPong[discard] === 0) continue;
+        const afterDiscard = afterPong.slice();
+        afterDiscard[discard]--;
+        const winInfo = getWinningDrawsWithFixed(afterDiscard, fixedMelds + 1);
+        const score = evaluateFast(afterDiscard, fixedMelds + 1);
+        const improveInfo = getImprovingDraws(afterDiscard, score, fixedMelds + 1);
+        discardPlans.push({ discard, isTenpai: winInfo.total > 0, winNames: winInfo.names, winTotal: winInfo.total, score, improveNames: improveInfo.names, improveTotal: improveInfo.total });
+      }
+      discardPlans.sort((a, b) => {
+        if (a.isTenpai !== b.isTenpai) return b.isTenpai - a.isTenpai;
+        if (a.winTotal !== b.winTotal) return b.winTotal - a.winTotal;
+        if (a.score !== b.score) return b.score - a.score;
+        if (a.improveTotal !== b.improveTotal) return b.improveTotal - a.improveTotal;
+        return a.discard - b.discard;
+      });
+      pongPlans.push({ pongId, best: discardPlans[0] });
+    });
+
+    pongPlans.sort((a, b) => {
+      const A = a.best, B = b.best;
+      if (A.isTenpai !== B.isTenpai) return B.isTenpai - A.isTenpai;
+      if (A.winTotal !== B.winTotal) return B.winTotal - A.winTotal;
+      if (A.score !== B.score) return B.score - A.score;
+      if (A.improveTotal !== B.improveTotal) return B.improveTotal - A.improveTotal;
+      return a.pongId - b.pongId;
+    });
+
+    const bestPlan = pongPlans[0];
+    let shouldPong = false;
+    let reason = '';
+    if (bestPlan.best.isTenpai && noPongWin.total === 0) {
+      shouldPong = true;
+      reason = '因为碰后可以直接进入听牌，而当前不碰还没听。';
+    } else if (bestPlan.best.isTenpai && noPongWin.total > 0 && bestPlan.best.winTotal > noPongWin.total) {
+      shouldPong = true;
+      reason = '因为当前虽然已经听牌，但碰后的听口更宽。';
+    } else if (noPongWin.total === 0 && bestPlan.best.improveTotal > noPongImprove.total) {
+      shouldPong = true;
+      reason = '因为碰后整体进张更好。';
+    } else {
+      shouldPong = false;
+      reason = noPongWin.total > 0 ? '因为你当前已经听牌，碰牌可能破坏原本节奏。' : '因为碰后优势不明显，先不碰更稳。';
+    }
+
+    let html = `<div>系统判断：你已有 <b>${fixedMelds}</b> 组完成面子。</div>`;
+    html += `<div>当前不碰：${noPongWin.total > 0 ? '<span class="good">已听牌</span>' : '未听牌'}；`;
+    html += noPongWin.total > 0 ? `可胡：${noPongWin.names.join('、')}，共约 <b>${noPongWin.total}</b> 张。</div>` : `改善进张约 <b>${noPongImprove.total}</b> 张。</div>`;
+    html += `<div style="margin-top:8px;">综合建议：<span class="${shouldPong ? 'good' : 'danger'}">${shouldPong ? '可以碰' : '不建议碰'}</span></div>`;
+    html += `<div>${reason}</div>`;
+
+    html += '<table><tr><th>如果别人打出</th><th>建议</th><th>碰后打</th><th>结果</th><th>听口 / 改善牌</th><th>数量</th></tr>';
+    pongPlans.slice(0, 5).forEach(plan => {
+      const b = plan.best;
+      const lineSuggest = b.isTenpai || (noPongWin.total === 0 && b.improveTotal >= noPongImprove.total) ? '可考虑碰' : '不优先碰';
+      const resultText = b.isTenpai ? '<span class="good">听牌</span>' : '未听';
+      const listText = b.isTenpai ? b.winNames.join('、') : (b.improveNames.join('、') || '-');
+      const numText = b.isTenpai ? b.winTotal : b.improveTotal;
+      html += `<tr><td>${tileNames[plan.pongId]}</td><td>${lineSuggest}</td><td>${tileNames[b.discard]}</td><td>${resultText}</td><td>${listText}</td><td>${numText}</td></tr>`;
+    });
+    html += '</table>';
+    if (pongPlans.length > 5) html += `<div class="small">仅显示前5个碰牌方案，共计算 ${pongPlans.length} 个方案。</div>`;
+    html += '<div class="small">注意：碰牌分析只看速度和听口，不考虑防守、牌河、别人是否已经听牌。</div>';
+    result.innerHTML = html;
+  }
+
+  function enableReplaceMode(discardId) {
+    lastDiscard = discardId;
+    replaceMode = true;
+    document.getElementById('result').innerHTML += '<div class="small">已进入摸牌替换模式：请点击你摸到的牌。</div>';
+  }
+
+  function getWinningDrawsWithFixed(counts13, fixedMelds) {
+    const names = [];
+    let total = 0;
+    for (let draw = 0; draw < 34; draw++) {
+      if (counts13[draw] >= 4) continue;
+      const temp = counts13.slice();
+      temp[draw]++;
+      if (isWinningWithFixed(temp, fixedMelds)) {
+        const left = 4 - counts13[draw];
+        names.push(tileNames[draw] + '(' + left + ')');
+        total += left;
+      }
+    }
+    return { names, total };
+  }
+
+  function getImprovingDraws(counts13, currentScore, fixedMelds) {
+    const names = [];
+    let total = 0;
+    for (let draw = 0; draw < 34; draw++) {
+      if (counts13[draw] >= 4) continue;
+      const temp = counts13.slice();
+      temp[draw]++;
+      const newScore = evaluateFast(temp, fixedMelds);
+      if (newScore >= currentScore + 20 || isWinningWithFixed(temp, fixedMelds)) {
+        const left = 4 - counts13[draw];
+        names.push(tileNames[draw] + '(' + left + ')');
+        total += left;
+      }
+    }
+    return { names, total };
+  }
+
+  function isWinningWithFixed(counts, fixedMelds) {
+    const zhong = counts[33];
+    if (zhong >= 4) return true;
+    const neededMelds = 4 - fixedMelds;
+    if (neededMelds < 0) return false;
+
+    const base = counts.slice();
+    base[33] = 0;
+
+    for (let pair = 0; pair < 33; pair++) {
+      const needPair = Math.max(0, 2 - base[pair]);
+      if (needPair > zhong) continue;
+      const temp = base.slice();
+      temp[pair] = Math.max(0, temp[pair] - 2);
+      if (canFormMeldsTarget(temp, zhong - needPair, neededMelds)) return true;
+    }
+
+    if (zhong >= 2 && canFormMeldsTarget(base.slice(), zhong - 2, neededMelds)) return true;
+    return false;
+  }
+
+  function canFormMeldsTarget(counts, wild, targetMelds) {
+    if (targetMelds < 0) return false;
+    const first = counts.findIndex(c => c > 0);
+    if (first === -1) return wild === targetMelds * 3;
+    if (targetMelds === 0) return false;
+
+    const useReal = Math.min(3, counts[first]);
+    const needTriplet = 3 - useReal;
+    if (needTriplet <= wild) {
+      const next = counts.slice();
+      next[first] -= useReal;
+      if (canFormMeldsTarget(next, wild - needTriplet, targetMelds - 1)) return true;
+    }
+
+    if (first < 27 && first % 9 <= 6) {
+      const a = first, b = first + 1, c = first + 2;
+      const needSeq = (counts[a] > 0 ? 0 : 1) + (counts[b] > 0 ? 0 : 1) + (counts[c] > 0 ? 0 : 1);
+      if (needSeq <= wild) {
+        const next = counts.slice();
+        if (next[a] > 0) next[a]--;
+        if (next[b] > 0) next[b]--;
+        if (next[c] > 0) next[c]--;
+        if (canFormMeldsTarget(next, wild - needSeq, targetMelds - 1)) return true;
+      }
+    }
+
+    return false;
+  }
+
+  function evaluateFast(counts, fixedMelds) {
+    const c = counts.slice();
+    const zhong = c[33];
+    c[33] = 0;
+
+    let meld = fixedMelds;
+    let pair = 0;
+    let taatsu = 0;
+    let isolated = 0;
+
+    for (let i = 0; i < 33; i++) {
+      while (c[i] >= 3) { c[i] -= 3; meld++; }
+    }
+    for (let base = 0; base < 27; base += 9) {
+      for (let i = base; i <= base + 6; i++) {
+        while (c[i] > 0 && c[i + 1] > 0 && c[i + 2] > 0) {
+          c[i]--; c[i + 1]--; c[i + 2]--; meld++;
+        }
+      }
+    }
+    for (let i = 0; i < 33; i++) {
+      while (c[i] >= 2) { c[i] -= 2; pair++; }
+    }
+    for (let base = 0; base < 27; base += 9) {
+      for (let i = base; i <= base + 7; i++) {
+        while (c[i] > 0 && c[i + 1] > 0) { c[i]--; c[i + 1]--; taatsu++; }
+      }
+    }
+    for (let base = 0; base < 27; base += 9) {
+      for (let i = base; i <= base + 6; i++) {
+        while (c[i] > 0 && c[i + 2] > 0) { c[i]--; c[i + 2]--; taatsu++; }
+      }
+    }
+
+    isolated = c.reduce((sum, n) => sum + n, 0);
+    let score = 0;
+    score += meld * 100;
+    score += pair * 28;
+    score += taatsu * 20;
+    score += zhong * 45;
+    score -= isolated * 8;
+    if (zhong === 3) score += 80;
+    return score;
+  }
+
+  init();
+</script>
+</body>
+</html>
