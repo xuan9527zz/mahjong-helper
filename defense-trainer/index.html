@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#082f2a" />
+    <meta
+      name="description"
+      content="根据牌河、副露、过胡与包三家风险，练习广东麻将防点炮。"
+    />
+    <title>广东麻将防点炮训练器</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <a class="brand" href="#" aria-label="广东麻将防点炮训练器首页">
+          <span class="brand-mark" aria-hidden="true">安</span>
+          <span>
+            <strong>防铳实验室</strong>
+            <small>广东麻将 · 牌河推理训练</small>
+          </span>
+        </a>
+        <div class="topbar-actions">
+          <span class="model-badge"><i></i> 风险模型 v0.1</span>
+          <button class="icon-button" id="openHelp" type="button" aria-label="查看使用说明">?</button>
+        </div>
+      </header>
+
+      <main>
+        <section class="hero-copy" aria-labelledby="pageTitle">
+          <div>
+            <p class="eyebrow">READ THE TABLE · SAVE THE HAND</p>
+            <h1 id="pageTitle">不是猜谁在做大牌，<br />而是找到<span>损失最小</span>的那张。</h1>
+          </div>
+          <p>
+            同时考虑鸡胡听牌、混清一色信号、过胡窗口与包三家。当前概率是训练模型的相对估计，
+            用来比较候选牌，不是假装知道对手的暗牌。
+          </p>
+        </section>
+
+        <nav class="mode-switch" aria-label="训练模式">
+          <button class="mode-button active" type="button" data-mode="practice">
+            <span>01</span>
+            <strong>模拟练习</strong>
+            <small>系统出题并即时复盘</small>
+          </button>
+          <button class="mode-button" type="button" data-mode="live">
+            <span>02</span>
+            <strong>实战推测</strong>
+            <small>修改盘面并比较弃牌</small>
+          </button>
+        </nav>
+
+        <section class="workspace" id="workspace">
+          <div class="table-column">
+            <div class="question-strip">
+              <div>
+                <span id="questionIndex">第 1 / 3 题</span>
+                <strong id="questionTitle">过胡窗口与主要威胁</strong>
+              </div>
+              <div class="question-meta" id="questionMeta"></div>
+            </div>
+
+            <div class="mahjong-table" id="mahjongTable" aria-label="当前麻将牌桌">
+              <section class="seat seat-top" data-seat="top">
+                <div class="seat-heading"></div>
+                <div class="meld-zone"></div>
+                <div class="river"></div>
+              </section>
+
+              <section class="seat seat-left" data-seat="left">
+                <div class="seat-heading"></div>
+                <div class="meld-zone"></div>
+                <div class="river"></div>
+              </section>
+
+              <div class="table-center">
+                <div class="round-mark" id="roundMark">南 2</div>
+                <div>
+                  <small>牌墙剩余</small>
+                  <strong id="wallRemaining">48</strong>
+                  <span>张</span>
+                </div>
+                <p id="turnNotice">轮到你出牌</p>
+              </div>
+
+              <section class="seat seat-right" data-seat="right">
+                <div class="seat-heading"></div>
+                <div class="meld-zone"></div>
+                <div class="river"></div>
+              </section>
+
+              <section class="seat seat-self" data-seat="self">
+                <div class="self-heading">
+                  <div>
+                    <span class="seat-wind">南</span>
+                    <strong>你</strong>
+                  </div>
+                  <small>点击手牌可加入／移出实战候选</small>
+                </div>
+                <div class="self-hand" id="selfHand"></div>
+              </section>
+            </div>
+
+            <div class="evidence-bar" id="evidenceBar"></div>
+          </div>
+
+          <aside class="analysis-panel">
+            <div id="practicePanel">
+              <div class="panel-kicker">YOUR DECISION</div>
+              <h2 id="promptText">现在轮到你出牌，哪一张的综合风险最低？</h2>
+              <p class="panel-description" id="promptHint">不要只盯着最大牌型，也要保留桌上鸡胡听牌的可能。</p>
+
+              <div class="candidate-grid" id="candidateGrid"></div>
+
+              <button class="primary-button" id="submitAnswer" type="button" disabled>
+                确认弃牌
+                <span aria-hidden="true">→</span>
+              </button>
+
+              <div class="feedback-card hidden" id="feedbackCard" aria-live="polite"></div>
+              <button class="secondary-button hidden" id="nextQuestion" type="button">下一题</button>
+            </div>
+
+            <div id="livePanel" class="hidden">
+              <div class="panel-kicker">LIVE INFERENCE</div>
+              <h2>用当前盘面做实战推测</h2>
+              <p class="panel-description">
+                先从手牌点选最多四张候选，再调整三家的威胁信号。牌河可在下方编辑。
+              </p>
+
+              <div class="live-candidates">
+                <span>已选候选</span>
+                <div id="liveCandidateList"><small>尚未选择</small></div>
+              </div>
+
+              <div class="opponent-controls" id="opponentControls"></div>
+
+              <details class="board-editor">
+                <summary>编辑手牌与牌河</summary>
+                <div class="editor-target-row">
+                  <label for="editTarget">加入到</label>
+                  <select id="editTarget">
+                    <option value="self">我的手牌</option>
+                    <option value="left">上家牌河</option>
+                    <option value="top">对家牌河</option>
+                    <option value="right">下家牌河</option>
+                  </select>
+                  <button type="button" id="undoTarget">撤销末张</button>
+                  <button type="button" id="clearTarget">清空目标</button>
+                </div>
+                <div class="tile-palette" id="tilePalette"></div>
+              </details>
+
+              <button class="primary-button" id="runLiveAnalysis" type="button">
+                比较候选风险
+                <span aria-hidden="true">↗</span>
+              </button>
+              <div class="feedback-card hidden" id="liveResults" aria-live="polite"></div>
+              <button class="secondary-button" id="resetLive" type="button">恢复为本题盘面</button>
+            </div>
+          </aside>
+        </section>
+
+        <section class="principles" aria-labelledby="principlesTitle">
+          <div>
+            <p class="eyebrow">HOW THE MODEL THINKS</p>
+            <h2 id="principlesTitle">三层判断，而不是一条“安全牌公式”</h2>
+          </div>
+          <div class="principle-grid">
+            <article>
+              <span>01</span>
+              <h3>先判断是否已经听牌</h3>
+              <p>牌河再像混一色，也不能自动排除另一家正在听鸡胡。每一家都保留独立的听牌概率。</p>
+            </article>
+            <article>
+              <span>02</span>
+              <h3>再判断候选牌是否吻合</h3>
+              <p>副露、缺门、近期舍牌与过胡只改变风险强弱；除有效过胡窗口外，不轻易判定为零。</p>
+            </article>
+            <article>
+              <span>03</span>
+              <h3>最后计算点炮代价</h3>
+              <p>点炮概率相近时，优先避开高番与包三家方向，以预期损失决定真正的“最安全”。</p>
+            </article>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        <p>规则基准：深圳常用广东麻将 · 136 张 · 不可吃 · 可一炮多响</p>
+        <p>模型用于训练牌河推理，不代表真实暗牌概率。</p>
+      </footer>
+    </div>
+
+    <dialog id="helpDialog">
+      <button class="dialog-close" id="closeHelp" type="button" aria-label="关闭">×</button>
+      <p class="panel-kicker">使用说明</p>
+      <h2>先看风险，再看答案</h2>
+      <ol>
+        <li>模拟练习：阅读三家牌河、副露与桌面事件，从四张候选中选综合损失最低的一张。</li>
+        <li>实战推测：点击自己的手牌选候选，调整对手牌型、听牌可能和落地张数，再运行比较。</li>
+        <li>“过胡锁定”只持续到该玩家下一次摸牌；玩家自己打过的牌不会被永久视为安全。</li>
+      </ol>
+      <p class="dialog-note">当前三道题是结构演示题，后续可以只修改题目数据，不必重写页面或算法。</p>
+    </dialog>
+
+    <script type="module" src="./js/app.js"></script>
+  </body>
+</html>
