@@ -1,9 +1,9 @@
 export const TILE_SPRITE_URL = "assets/mahjong-tiles-source.jpg";
 
-const TILE_WIDTH = 44;
-const TILE_HEIGHT = 60;
 const X_LEFTS = [21, 86, 152, 217, 283, 348, 414, 479, 545];
 const Y_TOPS = [26, 102, 178, 254];
+const HORIZONTAL_TRAVEL = 610 - 44;
+const VERTICAL_TRAVEL = 340 - 60;
 
 const HONOR_COLUMNS = {
   E: 0,
@@ -21,7 +21,7 @@ const SUIT_ROWS = {
   s: 3,
 };
 
-export function tileSpriteCoordinates(tile) {
+export function tileSpritePosition(tile) {
   let column;
   let row;
 
@@ -36,11 +36,10 @@ export function tileSpriteCoordinates(tile) {
   }
 
   if (!Number.isInteger(column) || column < 0 || column > 8 || !Number.isInteger(row)) {
-    return null;
+    return "50% 50%";
   }
 
-  return {
-    left: `${(-100 * X_LEFTS[column] / TILE_WIDTH).toFixed(4)}%`,
-    top: `${(-100 * Y_TOPS[row] / TILE_HEIGHT).toFixed(4)}%`,
-  };
+  const x = (100 * X_LEFTS[column] / HORIZONTAL_TRAVEL).toFixed(4);
+  const y = (100 * Y_TOPS[row] / VERTICAL_TRAVEL).toFixed(4);
+  return `${x}% ${y}%`;
 }
