@@ -491,10 +491,23 @@ button.tile-card {
 }
 
 .tile-card .tile-glyph {
-  font-family: "Apple Symbols", "Segoe UI Symbol", "Noto Sans Symbols 2", sans-serif;
-  font-size: 29px;
-  line-height: 1;
-  filter: saturate(0.92) contrast(1.05);
+  display: block;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+}
+
+.tile-card .tile-glyph img {
+  position: absolute;
+  display: block;
+  width: 1386.3636%;
+  height: 566.6667%;
+  max-width: none;
+  filter: saturate(1.08) contrast(1.08) brightness(1.015);
+  pointer-events: none;
+  user-select: none;
 }
 
 .tile-card.selected-candidate {
