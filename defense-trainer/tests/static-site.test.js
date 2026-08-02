@@ -10,7 +10,7 @@ const app = readFileSync(resolve(root, "js/app.js"), "utf8");
 const css = readFileSync(resolve(root, "styles.css"), "utf8");
 
 test("HTML引用的本地资源都存在", () => {
-  const paths = [...html.matchAll(/(?:src|href)="(\.\/[^"?#]+)"/g)].map((match) => match[1]);
+  const paths = [...html.matchAll(/(?:src|href)="(\.\/[^"?#]+)(?:[?#][^"]*)?"/g)].map((match) => match[1]);
   assert.ok(paths.length >= 2);
   for (const path of paths) assert.ok(existsSync(resolve(root, path)), `${path} 不存在`);
 });
