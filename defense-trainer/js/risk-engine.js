@@ -187,6 +187,20 @@ export function validateQuestion(question) {
   for (const tile of question.candidates) {
     if (!question.self.hand.includes(tile)) issues.push(`候选${tileName(tile)}不在自家手牌中`);
   }
+
+  const visibleTiles = [...question.self.hand, ...(question.self.river ?? [])];
+  for (const opponent of Object.values(question.opponents)) {
+    visibleTiles.push(...opponent.river);
+    for (const meld of opponent.melds ?? []) visibleTiles.push(...meld.tiles);
+  }
+  const visibleCounts = visibleTiles.reduce((counts, tile) => {
+    counts[tile] = (counts[tile] ?? 0) + 1;
+    return counts;
+  }, {});
+  for (const [tile, count] of Object.entries(visibleCounts)) {
+    if (count > 4) issues.push(`可见的${tileName(tile)}有${count}张，超过一副牌上限`);
+  }
+
   const ranked = rankCandidates(question.candidates, question.opponents, {
     candidateModifiers: question.candidateModifiers,
   });

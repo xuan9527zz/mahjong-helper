@@ -41,3 +41,10 @@ test("副露位于牌河外侧并在手机端保持显示", () => {
   assert.match(css, /\.seat-right \.meld-zone\s*{[\s\S]*?right:\s*8px[\s\S]*?transform-origin:\s*bottom right/);
   assert.doesNotMatch(css, /@media \(max-width: 650px\)[\s\S]*?\.meld-zone\s*{\s*display:\s*none/);
 });
+
+test("自家牌河位于手牌上方并可在实战模式编辑", () => {
+  assert.match(html, /id="selfRiver"[\s\S]*class="self-heading"[\s\S]*id="selfHand"/);
+  assert.match(html, /option value="self-river">我的牌河<\/option>/);
+  assert.match(app, /state\.liveState\.self\.river/);
+  assert.match(css, /\.seat-self \.self-river/);
+});

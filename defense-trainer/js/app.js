@@ -21,6 +21,7 @@ const elements = {
   roundMark: document.querySelector("#roundMark"),
   wallRemaining: document.querySelector("#wallRemaining"),
   turnNotice: document.querySelector("#turnNotice"),
+  selfRiver: document.querySelector("#selfRiver"),
   selfHand: document.querySelector("#selfHand"),
   evidenceBar: document.querySelector("#evidenceBar"),
   promptText: document.querySelector("#promptText"),
@@ -125,7 +126,17 @@ function renderSeat(seatKey, opponent) {
 function renderSelf(self) {
   const heading = document.querySelector(".self-heading");
   heading.querySelector(".seat-wind").textContent = tileName(self.wind);
+  elements.selfRiver.replaceChildren();
   elements.selfHand.replaceChildren();
+
+  (self.river ?? []).forEach((tile, index, river) => {
+    elements.selfRiver.append(
+      tileElement(tile, {
+        className: index === river.length - 1 ? "discard-recent" : "",
+        title: `你第${index + 1}张舍牌：${tileName(tile)}`,
+      }),
+    );
+  });
 
   self.hand.forEach((tile, index) => {
     const isSelected = state.mode === "live" && state.liveCandidates.has(tile);
@@ -419,6 +430,7 @@ function renderOpponentControls() {
 
 function visibleTileCount(tile) {
   let total = state.liveState.self.hand.filter((item) => item === tile).length;
+  total += (state.liveState.self.river ?? []).filter((item) => item === tile).length;
   for (const opponent of Object.values(state.liveState.opponents)) {
     total += opponent.river.filter((item) => item === tile).length;
     for (const meld of opponent.melds ?? []) total += meld.tiles.filter((item) => item === tile).length;
@@ -428,7 +440,9 @@ function visibleTileCount(tile) {
 
 function targetTiles() {
   const target = elements.editTarget.value;
-  return target === "self" ? state.liveState.self.hand : state.liveState.opponents[target].river;
+  if (target === "self-hand") return state.liveState.self.hand;
+  if (target === "self-river") return (state.liveState.self.river ??= []);
+  return state.liveState.opponents[target].river;
 }
 
 function addTileToTarget(tile) {
@@ -438,12 +452,12 @@ function addTileToTarget(tile) {
     window.alert(`${tileName(tile)}已有四张可见，不能继续加入。`);
     return;
   }
-  if (target === "self" && list.length >= 14) {
+  if (target === "self-hand" && list.length >= 14) {
     window.alert("自家手牌最多录入14张。可先撤销或清空。");
     return;
   }
   list.push(tile);
-  if (target === "self") state.liveState.self.drawnIndex = list.length - 1;
+  if (target === "self-hand") state.liveState.self.drawnIndex = list.length - 1;
   renderTable(state.liveState);
 }
 
@@ -451,7 +465,10 @@ function undoTarget() {
   const target = elements.editTarget.value;
   const list = targetTiles();
   const removed = list.pop();
-  if (target === "self" && removed && !list.includes(removed)) state.liveCandidates.delete(removed);
+  if (target === "self-hand") {
+    state.liveState.self.drawnIndex = Math.min(state.liveState.self.drawnIndex, list.length - 1);
+    if (removed && !list.includes(removed)) state.liveCandidates.delete(removed);
+  }
   renderTable(state.liveState);
   renderLiveCandidateList();
 }
@@ -460,7 +477,10 @@ function clearTarget() {
   const target = elements.editTarget.value;
   const list = targetTiles();
   list.length = 0;
-  if (target === "self") state.liveCandidates.clear();
+  if (target === "self-hand") {
+    state.liveState.self.drawnIndex = -1;
+    state.liveCandidates.clear();
+  }
   renderTable(state.liveState);
   renderLiveCandidateList();
 }

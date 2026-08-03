@@ -28,6 +28,7 @@ export const questions = [
     self: {
       wind: "S",
       hand: ["2m", "3m", "4m", "5m", "6m", "7m", "1p", "6p", "7p", "8p", "1s", "2s", "3s", "W"],
+      river: ["9p", "1p", "8m", "W", "6s", "2m", "8p", "S", "4m", "6p"],
       drawnIndex: 13,
     },
     opponents: {
@@ -97,6 +98,7 @@ export const questions = [
     self: {
       wind: "S",
       hand: ["2m", "3m", "3m", "4m", "5m", "5p", "6p", "7p", "8p", "9s", "9s", "C", "C", "3m"],
+      river: ["F", "S", "3s", "W", "1m", "1s", "4s", "5s", "6s", "8s", "9p"],
       drawnIndex: 13,
     },
     opponents: {
@@ -135,7 +137,7 @@ export const questions = [
         readyLikelihood: 0.58,
         valueWeight: 3.8,
         openCount: 3,
-        river: ["9m", "1p", "E", "2p", "7m", "4s", "8p", "5m", "2s", "P", "6p", "N", "7s"],
+        river: ["9m", "1p", "E", "2p", "7m", "4s", "3s", "5m", "2s", "P", "6p", "N", "7s"],
         melds: [{ type: "碰", tiles: ["6m", "6m", "6m"] }],
         passedTiles: [],
       },
@@ -166,6 +168,7 @@ export const questions = [
     self: {
       wind: "S",
       hand: ["3m", "4m", "5m", "6m", "7m", "2p", "3p", "4p", "6s", "7s", "8s", "E", "E", "7s"],
+      river: ["9s", "W", "1m", "2p", "6m", "7p", "S", "4s", "5s", "P", "3s", "8p"],
       drawnIndex: 13,
     },
     opponents: {

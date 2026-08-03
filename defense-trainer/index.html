@@ -9,7 +9,7 @@
       content="根据牌河、副露、过胡与包三家风险，练习广东麻将防点炮。"
     />
     <title>广东麻将防点炮训练器</title>
-    <link rel="stylesheet" href="./styles.css?v=0.1.6" />
+    <link rel="stylesheet" href="./styles.css?v=0.1.7" />
   </head>
   <body>
     <div class="app-shell">
@@ -92,6 +92,7 @@
               </section>
 
               <section class="seat seat-self" data-seat="self">
+                <div class="river self-river" id="selfRiver" aria-label="你的牌河"></div>
                 <div class="self-heading">
                   <div>
                     <span class="seat-wind">南</span>
@@ -127,7 +128,7 @@
               <div class="panel-kicker">LIVE INFERENCE</div>
               <h2>用当前盘面做实战推测</h2>
               <p class="panel-description">
-                先从手牌点选最多四张候选，再调整三家的威胁信号。牌河可在下方编辑。
+                先从手牌点选最多四张候选，再调整三家的威胁信号。四家牌河均可在下方编辑。
               </p>
 
               <div class="live-candidates">
@@ -142,7 +143,8 @@
                 <div class="editor-target-row">
                   <label for="editTarget">加入到</label>
                   <select id="editTarget">
-                    <option value="self">我的手牌</option>
+                    <option value="self-hand">我的手牌</option>
+                    <option value="self-river">我的牌河</option>
                     <option value="left">上家牌河</option>
                     <option value="top">对家牌河</option>
                     <option value="right">下家牌河</option>
@@ -206,6 +208,6 @@
       <p class="dialog-note">当前三道题是结构演示题，后续可以只修改题目数据，不必重写页面或算法。</p>
     </dialog>
 
-    <script type="module" src="./js/app.js?v=0.1.6"></script>
+    <script type="module" src="./js/app.js?v=0.1.7"></script>
   </body>
 </html>
