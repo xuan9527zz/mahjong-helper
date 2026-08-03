@@ -35,3 +35,9 @@ test("三家牌河都以每排六张围绕中央区域排列", () => {
   assert.match(css, /\.seat-left \.river\s*{[\s\S]*?rotate\(90deg\)/);
   assert.match(css, /\.seat-right \.river\s*{[\s\S]*?rotate\(-90deg\)/);
 });
+
+test("副露位于牌河外侧并在手机端保持显示", () => {
+  assert.match(css, /\.seat-left \.meld-zone\s*{[\s\S]*?left:\s*8px[\s\S]*?transform-origin:\s*bottom left/);
+  assert.match(css, /\.seat-right \.meld-zone\s*{[\s\S]*?right:\s*8px[\s\S]*?transform-origin:\s*bottom right/);
+  assert.doesNotMatch(css, /@media \(max-width: 650px\)[\s\S]*?\.meld-zone\s*{\s*display:\s*none/);
+});

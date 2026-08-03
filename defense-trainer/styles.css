@@ -443,6 +443,8 @@ summary:focus-visible {
 }
 
 .river {
+  position: relative;
+  z-index: 2;
   display: grid;
   grid-template-columns: repeat(6, var(--tile-w));
   gap: 4px;
@@ -480,32 +482,47 @@ summary:focus-visible {
 
 .meld-zone {
   position: absolute;
+  z-index: 1;
   display: flex;
   gap: 3px;
+  opacity: 0.96;
+  filter: saturate(0.94) brightness(0.96);
+}
+
+.meld-zone:not(:empty) {
+  padding: 5px;
+  border: 1px solid rgba(218, 243, 229, 0.08);
+  border-radius: 10px;
+  background: rgba(2, 34, 29, 0.24);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.09);
+}
+
+.meld-zone:empty {
+  display: none;
 }
 
 .seat-top .meld-zone {
   top: 34px;
-  left: 2px;
+  left: -8px;
   flex-direction: column;
-  transform: scale(0.76) rotate(180deg);
+  transform: scale(0.7) rotate(180deg);
   transform-origin: top left;
 }
 
 .seat-left .meld-zone {
-  right: 0;
-  bottom: 7px;
+  bottom: 10px;
+  left: 8px;
   flex-direction: column;
-  transform: scale(0.72) rotate(90deg);
-  transform-origin: bottom right;
+  transform: scale(0.68) rotate(90deg);
+  transform-origin: bottom left;
 }
 
 .seat-right .meld-zone {
-  bottom: 7px;
-  left: 0;
+  right: 8px;
+  bottom: 10px;
   flex-direction: column;
-  transform: scale(0.72) rotate(-90deg);
-  transform-origin: bottom left;
+  transform: scale(0.68) rotate(-90deg);
+  transform-origin: bottom right;
 }
 
 .meld {
@@ -1343,8 +1360,30 @@ dialog ol {
     font-size: 9px;
   }
 
-  .meld-zone {
-    display: none;
+  .meld-zone:not(:empty) {
+    padding: 3px;
+    border-radius: 7px;
+  }
+
+  .seat-top .meld-zone {
+    top: 27px;
+    left: -3px;
+    transform: scale(0.46) rotate(180deg);
+    transform-origin: top left;
+  }
+
+  .seat-left .meld-zone {
+    bottom: 5px;
+    left: 1px;
+    transform: scale(0.46) rotate(90deg);
+    transform-origin: bottom left;
+  }
+
+  .seat-right .meld-zone {
+    right: 1px;
+    bottom: 5px;
+    transform: scale(0.46) rotate(-90deg);
+    transform-origin: bottom right;
   }
 
   .analysis-panel {
