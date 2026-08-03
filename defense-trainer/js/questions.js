@@ -15,6 +15,11 @@ export const SUIT_LABELS = {
   z: "字牌",
 };
 
+const discardModes = (length, drawIndexes = []) => {
+  const draws = new Set(drawIndexes);
+  return Array.from({ length }, (_, index) => (draws.has(index) ? "draw" : "hand"));
+};
+
 export const questions = [
   {
     id: "pass-window",
@@ -29,6 +34,7 @@ export const questions = [
       wind: "S",
       hand: ["2m", "3m", "4m", "5m", "6m", "7m", "1p", "6p", "7p", "8p", "1s", "2s", "3s", "W"],
       river: ["9p", "1p", "8m", "W", "6s", "2m", "8p", "S", "4m", "6p"],
+      discardModes: discardModes(10, [2, 5, 8]),
       drawnIndex: 13,
     },
     opponents: {
@@ -41,6 +47,7 @@ export const questions = [
         valueWeight: 4.8,
         openCount: 6,
         river: ["9m", "2s", "E", "7m", "5s", "F", "3m", "9s", "1m", "N", "8s"],
+        discardModes: discardModes(11, [0, 4, 7]),
         melds: [
           { type: "碰", tiles: ["7p", "7p", "7p"] },
           { type: "碰", tiles: ["C", "C", "C"] },
@@ -56,6 +63,7 @@ export const questions = [
         valueWeight: 2,
         openCount: 3,
         river: ["1m", "9p", "E", "2s", "8m", "P", "4p", "6s", "3m", "C", "9s", "2p"],
+        discardModes: discardModes(12, [1, 5, 9]),
         melds: [{ type: "碰", tiles: ["5s", "5s", "5s"] }],
         passedTiles: [],
       },
@@ -68,6 +76,7 @@ export const questions = [
         valueWeight: 2.2,
         openCount: 0,
         river: ["P", "9m", "1s", "6m", "2p", "S", "8s", "4p", "7m", "3s", "E", "5m"],
+        discardModes: discardModes(12, [2, 6, 10]),
         melds: [],
         passedTiles: [],
       },
@@ -99,6 +108,7 @@ export const questions = [
       wind: "S",
       hand: ["2m", "3m", "3m", "4m", "5m", "5p", "6p", "7p", "8p", "9s", "9s", "C", "C", "3m"],
       river: ["F", "S", "3s", "W", "1m", "1s", "4s", "5s", "6s", "8s", "9p"],
+      discardModes: discardModes(11, [1, 4, 8]),
       drawnIndex: 13,
     },
     opponents: {
@@ -111,6 +121,7 @@ export const questions = [
         valueWeight: 4.1,
         openCount: 6,
         river: ["1p", "6p", "2s", "9m", "3p", "E", "8m", "4p", "7s", "2m", "P", "6s", "5m"],
+        discardModes: discardModes(13, [0, 5, 9, 12]),
         melds: [
           { type: "碰", tiles: ["8p", "8p", "8p"] },
           { type: "碰", tiles: ["N", "N", "N"] },
@@ -126,6 +137,7 @@ export const questions = [
         valueWeight: 2,
         openCount: 0,
         river: ["E", "P", "1m", "9p", "2s", "8s", "4m", "7p", "6m", "1s", "W", "5s", "2p"],
+        discardModes: discardModes(13, [2, 6, 10]),
         melds: [],
         passedTiles: [{ tile: "9s", active: true }],
       },
@@ -138,6 +150,7 @@ export const questions = [
         valueWeight: 3.8,
         openCount: 3,
         river: ["9m", "1p", "E", "2p", "7m", "4s", "3s", "5m", "2s", "P", "6p", "N", "7s"],
+        discardModes: discardModes(13, [1, 7, 11]),
         melds: [{ type: "碰", tiles: ["6m", "6m", "6m"] }],
         passedTiles: [],
       },
@@ -169,6 +182,7 @@ export const questions = [
       wind: "S",
       hand: ["3m", "4m", "5m", "6m", "7m", "2p", "3p", "4p", "6s", "7s", "8s", "E", "E", "7s"],
       river: ["9s", "W", "1m", "2p", "6m", "7p", "S", "4s", "5s", "P", "3s", "8p"],
+      discardModes: discardModes(12, [2, 6, 9]),
       drawnIndex: 13,
     },
     opponents: {
@@ -181,6 +195,7 @@ export const questions = [
         valueWeight: 8.5,
         openCount: 9,
         river: ["1m", "9m", "3p", "8p", "3s", "7s", "4m", "6p", "2s", "9p", "5m", "1s", "8m"],
+        discardModes: discardModes(13, [0, 4, 8, 12]),
         melds: [
           { type: "碰", tiles: ["C", "C", "C"] },
           { type: "碰", tiles: ["F", "F", "F"] },
@@ -197,6 +212,7 @@ export const questions = [
         valueWeight: 2,
         openCount: 0,
         river: ["P", "9s", "1p", "8m", "2s", "7p", "3m", "6s", "W", "4p", "9m", "2m", "C"],
+        discardModes: discardModes(13, [1, 5, 9]),
         melds: [],
         passedTiles: [],
       },
@@ -209,6 +225,7 @@ export const questions = [
         valueWeight: 2.4,
         openCount: 3,
         river: ["9p", "1s", "E", "8p", "2m", "7m", "P", "3s", "6p", "4m", "N", "1p", "8s"],
+        discardModes: discardModes(13, [3, 7, 10]),
         melds: [{ type: "碰", tiles: ["5p", "5p", "5p"] }],
         passedTiles: [],
       },
@@ -228,3 +245,4 @@ export const questions = [
     },
   },
 ];
+

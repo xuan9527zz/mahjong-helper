@@ -60,3 +60,18 @@ test("模拟练习与实战推测使用独立的界面信息", () => {
   assert.match(css, /\.workspace\[data-mode="live"\] \.practice-only/);
 });
 
+test("界面精简并提供番数、同牌高亮与手摸切标记", () => {
+  assert.doesNotMatch(html, /class="hero-copy"/);
+  assert.doesNotMatch(html, /class="principles"/);
+  assert.doesNotMatch(html, /id="roundMark"/);
+  assert.doesNotMatch(html, /id="evidenceBar"/);
+  assert.match(html, /id="openRules"/);
+  assert.match(html, /id="rulesDialog"/);
+  assert.match(html, /红点：手切/);
+  assert.match(html, /无标记：摸切/);
+  assert.match(app, /tile === focusedTile\(\) \? "tile-match"/);
+  assert.match(app, /discardModes\[index\] === "hand" \? "discard-handcut"/);
+  assert.match(css, /\.river \.tile-card\.tile-match/);
+  assert.match(css, /\.tile-card\.discard-handcut::after/);
+});
+

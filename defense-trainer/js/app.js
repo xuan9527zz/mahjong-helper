@@ -10,6 +10,7 @@ const state = {
   answered: false,
   liveState: null,
   liveCandidates: new Set(),
+  liveFocusedTile: null,
   tilePaletteReady: false,
 };
 
@@ -19,13 +20,11 @@ const elements = {
   modeButtons: [...document.querySelectorAll(".mode-button")],
   questionIndex: document.querySelector("#questionIndex"),
   questionTitle: document.querySelector("#questionTitle"),
-  questionMeta: document.querySelector("#questionMeta"),
-  roundMark: document.querySelector("#roundMark"),
+  wallMeta: document.querySelector("#wallMeta"),
   wallRemaining: document.querySelector("#wallRemaining"),
   turnNotice: document.querySelector("#turnNotice"),
   selfRiver: document.querySelector("#selfRiver"),
   selfHand: document.querySelector("#selfHand"),
-  evidenceBar: document.querySelector("#evidenceBar"),
   promptText: document.querySelector("#promptText"),
   promptHint: document.querySelector("#promptHint"),
   candidateGrid: document.querySelector("#candidateGrid"),
@@ -37,6 +36,8 @@ const elements = {
   liveCandidateList: document.querySelector("#liveCandidateList"),
   opponentControls: document.querySelector("#opponentControls"),
   editTarget: document.querySelector("#editTarget"),
+  discardModeField: document.querySelector("#discardModeField"),
+  discardMode: document.querySelector("#discardMode"),
   boardEditor: document.querySelector(".board-editor"),
   tilePalette: document.querySelector("#tilePalette"),
   undoTarget: document.querySelector("#undoTarget"),
@@ -44,6 +45,9 @@ const elements = {
   runLiveAnalysis: document.querySelector("#runLiveAnalysis"),
   liveResults: document.querySelector("#liveResults"),
   resetLive: document.querySelector("#resetLive"),
+  rulesDialog: document.querySelector("#rulesDialog"),
+  openRules: document.querySelector("#openRules"),
+  closeRules: document.querySelector("#closeRules"),
   helpDialog: document.querySelector("#helpDialog"),
   openHelp: document.querySelector("#openHelp"),
   closeHelp: document.querySelector("#closeHelp"),
@@ -85,6 +89,20 @@ function chip(text, className = "meta-chip") {
   return span;
 }
 
+function focusedTile() {
+  return state.mode === "practice" ? state.selectedAnswer : state.liveFocusedTile;
+}
+
+function discardClass(tile, index, river, discardModes = []) {
+  return [
+    index === river.length - 1 ? "discard-recent" : "",
+    discardModes[index] === "hand" ? "discard-handcut" : "",
+    tile === focusedTile() ? "tile-match" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
+}
+
 function renderSeat(seatKey, opponent) {
   const seat = document.querySelector(`[data-seat="${seatKey}"]`);
   const heading = seat.querySelector(".seat-heading");
@@ -108,7 +126,7 @@ function renderSeat(seatKey, opponent) {
   opponent.river.forEach((tile, index) => {
     river.append(
       tileElement(tile, {
-        className: index === opponent.river.length - 1 ? "discard-recent" : "",
+        className: discardClass(tile, index, opponent.river, opponent.discardModes),
         title: `${opponent.label}第${index + 1}张舍牌：${tileName(tile)}`,
       }),
     );
@@ -120,7 +138,9 @@ function renderSeat(seatKey, opponent) {
     const meld = document.createElement("div");
     meld.className = "meld";
     meld.title = `${meldData.type} ${meldData.tiles.map(tileName).join(" ")}`;
-    meldData.tiles.forEach((tile) => meld.append(tileElement(tile)));
+    meldData.tiles.forEach((tile) =>
+      meld.append(tileElement(tile, { className: tile === focusedTile() ? "tile-match" : "" })),
+    );
     meldZone.append(meld);
   });
 }
@@ -134,7 +154,7 @@ function renderSelf(self) {
   (self.river ?? []).forEach((tile, index, river) => {
     elements.selfRiver.append(
       tileElement(tile, {
-        className: index === river.length - 1 ? "discard-recent" : "",
+        className: discardClass(tile, index, river, self.discardModes),
         title: `你第${index + 1}张舍牌：${tileName(tile)}`,
       }),
     );
@@ -161,7 +181,6 @@ function renderSelf(self) {
 }
 
 function renderTable(boardState) {
-  elements.roundMark.textContent = boardState.round;
   elements.wallRemaining.textContent = boardState.wallRemaining;
   elements.turnNotice.textContent = state.mode === "practice" ? "轮到你出牌" : "实战编辑中";
   elements.mahjongTable.setAttribute(
@@ -175,18 +194,6 @@ function renderTable(boardState) {
   renderSelf(boardState.self);
 }
 
-function renderEvidence(question) {
-  elements.evidenceBar.replaceChildren();
-  question.evidence.forEach((item) => {
-    const span = document.createElement("span");
-    span.className = "signal-chip";
-    const label = document.createElement("strong");
-    label.textContent = `${item.label}：`;
-    span.append(label, document.createTextNode(item.text));
-    elements.evidenceBar.append(span);
-  });
-}
-
 function selectAnswer(tile) {
   if (state.answered) return;
   state.selectedAnswer = tile;
@@ -195,6 +202,7 @@ function selectAnswer(tile) {
     button.classList.toggle("active", button.dataset.tile === tile);
     button.setAttribute("aria-pressed", String(button.dataset.tile === tile));
   });
+  renderTable(currentQuestion());
 }
 
 function renderCandidates(question) {
@@ -287,18 +295,13 @@ function renderQuestion() {
 
   elements.questionIndex.textContent = `第 ${state.questionIndex + 1} / ${questions.length} 题`;
   elements.questionTitle.textContent = question.title;
-  elements.questionMeta.replaceChildren(
-    chip(question.round),
-    chip(`牌墙 ${question.wallRemaining} 张`),
-    chip("深圳常用规则"),
-  );
+  elements.wallMeta.textContent = `牌墙 ${question.wallRemaining} 张`;
   elements.promptText.textContent = question.prompt;
   elements.promptHint.textContent = question.hint;
   elements.feedbackCard.classList.add("hidden");
   elements.nextQuestion.classList.add("hidden");
   elements.submitAnswer.disabled = true;
   renderCandidates(question);
-  renderEvidence(question);
   renderTable(state.mode === "live" ? state.liveState : question);
   renderLiveCandidateList();
   renderOpponentControls();
@@ -325,6 +328,7 @@ function switchMode(mode) {
 }
 
 function toggleLiveCandidate(tile) {
+  state.liveFocusedTile = tile;
   if (state.liveCandidates.has(tile)) {
     state.liveCandidates.delete(tile);
   } else if (state.liveCandidates.size >= 4) {
@@ -333,7 +337,7 @@ function toggleLiveCandidate(tile) {
   } else {
     state.liveCandidates.add(tile);
   }
-  renderSelf(state.liveState.self);
+  renderTable(state.liveState);
   renderLiveCandidateList();
 }
 
@@ -458,6 +462,17 @@ function targetTiles() {
   return state.liveState.opponents[target].river;
 }
 
+function targetDiscardModes() {
+  const target = elements.editTarget.value;
+  if (target === "self-hand") return null;
+  if (target === "self-river") return (state.liveState.self.discardModes ??= []);
+  return (state.liveState.opponents[target].discardModes ??= []);
+}
+
+function updateDiscardModeControl() {
+  elements.discardModeField.classList.toggle("hidden", elements.editTarget.value === "self-hand");
+}
+
 function addTileToTarget(tile) {
   const target = elements.editTarget.value;
   const list = targetTiles();
@@ -471,6 +486,7 @@ function addTileToTarget(tile) {
   }
   list.push(tile);
   if (target === "self-hand") state.liveState.self.drawnIndex = list.length - 1;
+  else targetDiscardModes().push(elements.discardMode.value);
   renderTable(state.liveState);
 }
 
@@ -478,6 +494,7 @@ function undoTarget() {
   const target = elements.editTarget.value;
   const list = targetTiles();
   const removed = list.pop();
+  if (target !== "self-hand") targetDiscardModes().pop();
   if (target === "self-hand") {
     state.liveState.self.drawnIndex = Math.min(state.liveState.self.drawnIndex, list.length - 1);
     if (removed && !list.includes(removed)) state.liveCandidates.delete(removed);
@@ -490,9 +507,11 @@ function clearTarget() {
   const target = elements.editTarget.value;
   const list = targetTiles();
   list.length = 0;
+  if (target !== "self-hand") targetDiscardModes().length = 0;
   if (target === "self-hand") {
     state.liveState.self.drawnIndex = -1;
     state.liveCandidates.clear();
+    state.liveFocusedTile = null;
   }
   renderTable(state.liveState);
   renderLiveCandidateList();
@@ -540,6 +559,7 @@ function resetLive() {
   const sample = questions[0];
   state.liveState = clone(sample);
   state.liveCandidates = new Set(sample.candidates);
+  state.liveFocusedTile = null;
   renderTable(state.liveState);
   renderLiveCandidateList();
   renderOpponentControls();
@@ -556,6 +576,7 @@ elements.submitAnswer.addEventListener("click", submitAnswer);
 elements.nextQuestion.addEventListener("click", nextQuestion);
 elements.runLiveAnalysis.addEventListener("click", runLiveAnalysis);
 elements.resetLive.addEventListener("click", resetLive);
+elements.editTarget.addEventListener("change", updateDiscardModeControl);
 elements.undoTarget.addEventListener("click", undoTarget);
 elements.clearTarget.addEventListener("click", clearTarget);
 elements.boardEditor.addEventListener("toggle", () => {
@@ -565,11 +586,20 @@ elements.openHelp.addEventListener("click", () => {
   if (typeof elements.helpDialog.showModal === "function") elements.helpDialog.showModal();
   else elements.helpDialog.setAttribute("open", "");
 });
+elements.openRules.addEventListener("click", () => {
+  if (typeof elements.rulesDialog.showModal === "function") elements.rulesDialog.showModal();
+  else elements.rulesDialog.setAttribute("open", "");
+});
+elements.closeRules.addEventListener("click", () => elements.rulesDialog.close());
+elements.rulesDialog.addEventListener("click", (event) => {
+  if (event.target === elements.rulesDialog) elements.rulesDialog.close();
+});
 elements.closeHelp.addEventListener("click", () => elements.helpDialog.close());
 elements.helpDialog.addEventListener("click", (event) => {
   if (event.target === elements.helpDialog) elements.helpDialog.close();
 });
 
 validateData();
+updateDiscardModeControl();
 renderQuestion();
 

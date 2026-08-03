@@ -208,7 +208,7 @@ summary:focus-visible {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   width: min(630px, 100%);
-  margin-bottom: 18px;
+  margin: clamp(24px, 4vw, 44px) 0 18px;
   padding: 5px;
   border: 1px solid var(--line);
   border-radius: 16px;
@@ -373,6 +373,17 @@ summary:focus-visible {
   flex-wrap: wrap;
   justify-content: flex-end;
   gap: 6px;
+}
+
+.rules-button {
+  font: inherit;
+  cursor: pointer;
+  transition: 140ms ease;
+}
+
+.rules-button:hover {
+  border-color: rgba(6, 45, 40, 0.36);
+  background: white;
 }
 
 .meta-chip,
@@ -667,7 +678,7 @@ button.tile-card {
   transform: translateY(-5px);
 }
 
-.tile-card.discard-recent::after {
+.tile-card.discard-handcut::after {
   position: absolute;
   right: 2px;
   bottom: 1px;
@@ -676,6 +687,17 @@ button.tile-card {
   border-radius: 50%;
   background: var(--red);
   content: "";
+}
+
+.river .tile-card.tile-match,
+.meld-zone .tile-card.tile-match {
+  z-index: 6;
+  outline: 3px solid #ed4136;
+  outline-offset: 2px;
+  box-shadow:
+    inset -3px -4px 0 rgba(6, 45, 40, 0.08),
+    0 0 0 2px rgba(255, 244, 232, 0.92),
+    0 0 14px rgba(237, 65, 54, 0.92);
 }
 
 .self-hand {
@@ -728,22 +750,6 @@ button.tile-card {
   z-index: 1;
 }
 
-.round-mark {
-  position: absolute;
-  top: -15px;
-  left: 50%;
-  margin-top: 0;
-  padding: 5px 9px;
-  border-radius: 999px;
-  background: var(--acid);
-  color: var(--forest-deep);
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: 0.1em;
-  box-shadow: 0 6px 16px rgba(4, 42, 35, 0.28);
-  transform: translateX(-50%);
-}
-
 .table-center small,
 .table-center span {
   color: rgba(255, 255, 255, 0.55);
@@ -777,6 +783,31 @@ button.tile-card {
 
 .signal-chip strong {
   color: var(--forest);
+}
+
+.discard-legend {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  min-height: 27px;
+  margin-top: 9px;
+  color: #617069;
+  font-size: 10px;
+}
+
+.discard-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.discard-legend i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--red);
+  box-shadow: 0 0 0 2px rgba(190, 57, 47, 0.13);
 }
 
 .analysis-panel {
@@ -1077,6 +1108,14 @@ button.tile-card {
   font-size: 10px;
 }
 
+.discard-mode-field {
+  display: grid;
+  grid-column: 1 / -1;
+  grid-template-columns: auto minmax(130px, 1fr);
+  align-items: center;
+  gap: 7px;
+}
+
 .editor-target-row button {
   min-height: 32px;
   border: 1px solid var(--line);
@@ -1189,6 +1228,48 @@ dialog ol {
   color: #50605a;
   font-size: 13px;
   line-height: 1.8;
+}
+
+.rules-intro {
+  margin: 10px 42px 16px 0;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.fan-table {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.fan-table > div {
+  display: grid;
+  grid-template-columns: minmax(120px, 1.15fr) 52px minmax(130px, 1.25fr);
+  align-items: center;
+  gap: 8px;
+  padding: 9px 11px;
+  border-bottom: 1px solid var(--line);
+}
+
+.fan-table > div:last-child {
+  border-bottom: 0;
+}
+
+.fan-table strong,
+.fan-table span {
+  font-size: 12px;
+}
+
+.fan-table span {
+  color: var(--red);
+  font-weight: 900;
+}
+
+.fan-table small {
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.45;
 }
 
 .dialog-close {
@@ -1465,11 +1546,6 @@ dialog ol {
     border-radius: 10px;
   }
 
-  .round-mark {
-    top: -11px;
-    margin-top: 0;
-  }
-
   .table-center strong {
     font-size: 29px;
   }
@@ -1530,6 +1606,14 @@ dialog ol {
 
   .tile-palette .tile-glyph {
     font-size: 21px;
+  }
+
+  .fan-table > div {
+    grid-template-columns: 1fr auto;
+  }
+
+  .fan-table small {
+    grid-column: 1 / -1;
   }
 }
 

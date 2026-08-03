@@ -9,7 +9,7 @@
       content="根据牌河、副露、过胡与包三家风险，练习广东麻将防点炮。"
     />
     <title>广东麻将防点炮训练器</title>
-    <link rel="stylesheet" href="./styles.css?v=0.1.8" />
+    <link rel="stylesheet" href="./styles.css?v=0.1.9" />
   </head>
   <body>
     <div class="app-shell">
@@ -28,17 +28,6 @@
       </header>
 
       <main>
-        <section class="hero-copy" aria-labelledby="pageTitle">
-          <div>
-            <p class="eyebrow">READ THE TABLE · SAVE THE HAND</p>
-            <h1 id="pageTitle">不是猜谁在做大牌，<br />而是找到<span>损失最小</span>的那张。</h1>
-          </div>
-          <p>
-            同时考虑鸡胡听牌、混清一色信号、过胡窗口与包三家。当前概率是训练模型的相对估计，
-            用来比较候选牌，不是假装知道对手的暗牌。
-          </p>
-        </section>
-
         <nav class="mode-switch" aria-label="训练模式">
           <button class="mode-button active" type="button" data-mode="practice">
             <span>01</span>
@@ -59,7 +48,10 @@
                 <span id="questionIndex">第 1 / 3 题</span>
                 <strong id="questionTitle">过胡窗口与主要威胁</strong>
               </div>
-              <div class="question-meta" id="questionMeta"></div>
+              <div class="question-meta">
+                <span class="meta-chip" id="wallMeta">牌墙 48 张</span>
+                <button class="meta-chip rules-button" id="openRules" type="button">牌型番数</button>
+              </div>
             </div>
 
             <div class="live-context live-only">
@@ -88,7 +80,6 @@
               </section>
 
               <div class="table-center">
-                <div class="round-mark" id="roundMark">南 2</div>
                 <div>
                   <small>牌墙剩余</small>
                   <strong id="wallRemaining">48</strong>
@@ -116,7 +107,10 @@
               </section>
             </div>
 
-            <div class="evidence-bar practice-only" id="evidenceBar"></div>
+            <div class="discard-legend" aria-label="舍牌标记说明">
+              <span><i aria-hidden="true"></i>红点：手切</span>
+              <span>无标记：摸切</span>
+            </div>
           </div>
 
           <aside class="analysis-panel">
@@ -163,6 +157,13 @@
                   </select>
                   <button type="button" id="undoTarget">撤销末张</button>
                   <button type="button" id="clearTarget">清空目标</button>
+                  <label class="discard-mode-field hidden" id="discardModeField" for="discardMode">
+                    舍牌方式
+                    <select id="discardMode">
+                      <option value="hand">手切（红点）</option>
+                      <option value="draw">摸切</option>
+                    </select>
+                  </label>
                 </div>
                 <div class="tile-palette" id="tilePalette"></div>
               </details>
@@ -177,29 +178,6 @@
           </aside>
         </section>
 
-        <section class="principles" aria-labelledby="principlesTitle">
-          <div>
-            <p class="eyebrow">HOW THE MODEL THINKS</p>
-            <h2 id="principlesTitle">三层判断，而不是一条“安全牌公式”</h2>
-          </div>
-          <div class="principle-grid">
-            <article>
-              <span>01</span>
-              <h3>先判断是否已经听牌</h3>
-              <p>牌河再像混一色，也不能自动排除另一家正在听鸡胡。每一家都保留独立的听牌概率。</p>
-            </article>
-            <article>
-              <span>02</span>
-              <h3>再判断候选牌是否吻合</h3>
-              <p>副露、缺门、近期舍牌与过胡只改变风险强弱；除有效过胡窗口外，不轻易判定为零。</p>
-            </article>
-            <article>
-              <span>03</span>
-              <h3>最后计算点炮代价</h3>
-              <p>点炮概率相近时，优先避开高番与包三家方向，以预期损失决定真正的“最安全”。</p>
-            </article>
-          </div>
-        </section>
       </main>
 
       <footer>
@@ -208,19 +186,36 @@
       </footer>
     </div>
 
+    <dialog id="rulesDialog" class="rules-dialog">
+      <button class="dialog-close" id="closeRules" type="button" aria-label="关闭牌型番数">×</button>
+      <p class="panel-kicker">深圳常用鸡平胡参考</p>
+      <h2>牌型番数</h2>
+      <p class="rules-intro">本训练器采用“三番满、六番爆”的常见口径，用于判断点炮损失大小。</p>
+      <div class="fan-table" role="table" aria-label="广东麻将牌型番数">
+        <div role="row"><strong role="cell">鸡胡</strong><span role="cell">0 番</span><small role="cell">刻子与顺子混合的普通胡牌</small></div>
+        <div role="row"><strong role="cell">平胡</strong><span role="cell">1 番</span><small role="cell">四组顺子</small></div>
+        <div role="row"><strong role="cell">混一色</strong><span role="cell">2 番</span><small role="cell">一种数牌加字牌</small></div>
+        <div role="row"><strong role="cell">对对胡</strong><span role="cell">2 番</span><small role="cell">四组刻子或杠</small></div>
+        <div role="row"><strong role="cell">清一色</strong><span role="cell">4 番</span><small role="cell">只有一种数牌</small></div>
+        <div role="row"><strong role="cell">幺九／清碰／小三元</strong><span role="cell">5 番</span><small role="cell">高番牌型</small></div>
+        <div role="row"><strong role="cell">十三幺／大三元／字一色</strong><span role="cell">6 番</span><small role="cell">爆胡档</small></div>
+      </div>
+      <p class="dialog-note">圈风、门风和三元刻可加番；不同牌馆的满番、爆胡与叠加约定可能不同，开局前请先确认。</p>
+    </dialog>
+
     <dialog id="helpDialog">
       <button class="dialog-close" id="closeHelp" type="button" aria-label="关闭">×</button>
       <p class="panel-kicker">使用说明</p>
       <h2>先看风险，再看答案</h2>
       <ol>
-        <li>模拟练习：阅读三家牌河、副露与桌面事件，从四张候选中选综合损失最低的一张。</li>
+        <li>模拟练习：观察三家牌河与副露，从四张候选中选综合损失最低的一张。</li>
         <li>实战推测：点击自己的手牌选候选，调整对手牌型、听牌可能和落地张数，再运行比较。</li>
         <li>“过胡锁定”只持续到该玩家下一次摸牌；玩家自己打过的牌不会被永久视为安全。</li>
       </ol>
       <p class="dialog-note">当前三道题是结构演示题，后续可以只修改题目数据，不必重写页面或算法。</p>
     </dialog>
 
-    <script type="module" src="./js/app.js?v=0.1.8"></script>
+    <script type="module" src="./js/app.js?v=0.1.9"></script>
   </body>
 </html>
 

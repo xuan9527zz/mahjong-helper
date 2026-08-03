@@ -188,6 +188,13 @@ export function validateQuestion(question) {
     if (!question.self.hand.includes(tile)) issues.push(`候选${tileName(tile)}不在自家手牌中`);
   }
 
+  const discardingPlayers = [question.self, ...Object.values(question.opponents)];
+  for (const player of discardingPlayers) {
+    if ((player.discardModes ?? []).length !== (player.river ?? []).length) {
+      issues.push(`${player.label ?? "自家"}的手切／摸切标记数量与牌河不一致`);
+    }
+  }
+
   const visibleTiles = [...question.self.hand, ...(question.self.river ?? [])];
   for (const opponent of Object.values(question.opponents)) {
     visibleTiles.push(...opponent.river);
@@ -209,3 +216,4 @@ export function validateQuestion(question) {
   }
   return issues;
 }
+
