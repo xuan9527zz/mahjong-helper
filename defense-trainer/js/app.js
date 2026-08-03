@@ -1,4 +1,4 @@
-import { questions, SUIT_LABELS, THREAT_LABELS } from "./questions.js";
+import { questions, SUIT_LABELS, THREAT_LABELS } from "./questions.js?v=0.1.14";
 import { formatPercent, rankCandidates, summarizeCandidate, validateQuestion } from "./risk-engine.js";
 import { tileImageUrl } from "./tile-images.js";
 import { ALL_TILES, sortTiles, tileName } from "./tiles.js";

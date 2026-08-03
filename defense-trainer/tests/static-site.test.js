@@ -46,7 +46,9 @@ test("副露位于牌河外侧并在手机端保持显示", () => {
 });
 
 test("练习题已完整替换为Excel十题题库", () => {
-  const questionsSource = readFileSync(resolve(root, "js/questions.js"), "utf8");
+  const questionsSource = ["questions.js", "questions-data-1.js", "questions-data-2.js"]
+    .map((file) => readFileSync(resolve(root, "js", file), "utf8"))
+    .join("\n");
   assert.match(questionsSource, /"workbook": "广东麻将模拟对局10题_题库版\.xlsx"/);
   assert.match(questionsSource, /"id": "Q010"/);
   assert.doesNotMatch(questionsSource, /"id": "pass-window"|"id": "messy-river"|"id": "liability-loss"/);
