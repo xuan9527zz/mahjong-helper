@@ -10,6 +10,7 @@ const state = {
   answered: false,
   liveState: null,
   liveCandidates: new Set(),
+  tilePaletteReady: false,
 };
 
 const elements = {
@@ -33,6 +34,7 @@ const elements = {
   liveCandidateList: document.querySelector("#liveCandidateList"),
   opponentControls: document.querySelector("#opponentControls"),
   editTarget: document.querySelector("#editTarget"),
+  boardEditor: document.querySelector(".board-editor"),
   tilePalette: document.querySelector("#tilePalette"),
   undoTarget: document.querySelector("#undoTarget"),
   clearTarget: document.querySelector("#clearTarget"),
@@ -62,6 +64,8 @@ function tileElement(tile, options = {}) {
   glyph.className = "tile-glyph";
   glyph.src = tileImageUrl(tile);
   glyph.alt = "";
+  glyph.width = 104;
+  glyph.height = 144;
   glyph.decoding = "async";
   glyph.draggable = false;
   glyph.setAttribute("aria-hidden", "true");
@@ -462,6 +466,7 @@ function clearTarget() {
 }
 
 function renderTilePalette() {
+  if (state.tilePaletteReady) return;
   elements.tilePalette.replaceChildren();
   ALL_TILES.forEach((tile) => {
     elements.tilePalette.append(
@@ -473,6 +478,7 @@ function renderTilePalette() {
       }),
     );
   });
+  state.tilePaletteReady = true;
 }
 
 function runLiveAnalysis() {
@@ -518,6 +524,9 @@ elements.runLiveAnalysis.addEventListener("click", runLiveAnalysis);
 elements.resetLive.addEventListener("click", resetLive);
 elements.undoTarget.addEventListener("click", undoTarget);
 elements.clearTarget.addEventListener("click", clearTarget);
+elements.boardEditor.addEventListener("toggle", () => {
+  if (elements.boardEditor.open) renderTilePalette();
+});
 elements.openHelp.addEventListener("click", () => {
   if (typeof elements.helpDialog.showModal === "function") elements.helpDialog.showModal();
   else elements.helpDialog.setAttribute("open", "");
@@ -527,6 +536,5 @@ elements.helpDialog.addEventListener("click", (event) => {
   if (event.target === elements.helpDialog) elements.helpDialog.close();
 });
 
-renderTilePalette();
 validateData();
 renderQuestion();
