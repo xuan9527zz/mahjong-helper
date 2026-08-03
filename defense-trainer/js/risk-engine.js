@@ -157,7 +157,17 @@ export function analyzeCandidate(tile, opponents, options = {}) {
 }
 
 export function rankCandidates(candidates, opponents, options = {}) {
-  const analyzed = candidates.map((tile) => analyzeCandidate(tile, opponents, options));
+  const analyzed = candidates.map((tile) => {
+    const item = analyzeCandidate(tile, opponents, options);
+    const override = options.candidateOverrides?.[tile];
+    if (!override) return item;
+    return {
+      ...item,
+      probability: override.probability ?? item.probability,
+      expectedLoss: override.expectedLoss ?? item.expectedLoss,
+      overrideSummary: override.summary,
+    };
+  });
   const maxLoss = Math.max(...analyzed.map((item) => item.expectedLoss), 0.0001);
 
   return analyzed
@@ -210,6 +220,7 @@ export function validateQuestion(question) {
 
   const ranked = rankCandidates(question.candidates, question.opponents, {
     candidateModifiers: question.candidateModifiers,
+    candidateOverrides: question.candidateOverrides,
   });
   if (ranked[0]?.tile !== question.answerTile) {
     issues.push(`模型最低风险为${tileName(ranked[0]?.tile)}，但题目答案为${tileName(question.answerTile)}`);

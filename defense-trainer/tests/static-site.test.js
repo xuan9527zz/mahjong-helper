@@ -95,3 +95,8 @@ test("任意牌可点击查找同牌且番数表采用指定口径", () => {
   assert.doesNotMatch(html, /\d+ 番/);
 });
 
+test("模拟练习支持导入题附带的候选结果覆盖", () => {
+  assert.match(app, /candidateOverrides: question\.candidateOverrides/);
+  assert.match(app, /result\.overrideSummary \?\? summarizeCandidate\(result\)/);
+});
+

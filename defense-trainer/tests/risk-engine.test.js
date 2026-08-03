@@ -60,7 +60,22 @@ for (const question of questions) {
     assert.deepEqual(validateQuestion(question), []);
     const results = rankCandidates(question.candidates, question.opponents, {
       candidateModifiers: question.candidateModifiers,
+      candidateOverrides: question.candidateOverrides,
     });
     assert.equal(results[0].tile, question.answerTile);
   });
 }
+
+test("Excel导入题Q001保留原始候选排序与公开信息结果", () => {
+  const question = questions.find((item) => item.id === "Q001");
+  assert.ok(question);
+  assert.equal(question.wallRemaining, 47);
+  assert.equal(question.self.hand.length, 14);
+  assert.equal(question.self.hand[question.self.drawnIndex], "8s");
+  const results = rankCandidates(question.candidates, question.opponents, {
+    candidateOverrides: question.candidateOverrides,
+  });
+  assert.deepEqual(results.map((item) => item.tile), ["4m", "7s", "7p", "P"]);
+  assert.equal(results[0].expectedLoss, 0.0019976575736073555);
+});
+

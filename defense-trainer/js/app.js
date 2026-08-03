@@ -276,7 +276,7 @@ function renderRiskRows(results) {
     number.textContent = formatPercent(result.probability);
     const detail = document.createElement("span");
     detail.className = "risk-detail";
-    detail.textContent = `${summarizeCandidate(result)}；相对损失 ${result.expectedLoss.toFixed(2)}`;
+    detail.textContent = `${result.overrideSummary ?? summarizeCandidate(result)}；相对损失 ${result.expectedLoss.toFixed(3)}`;
     row.append(name, bar, number, detail);
     list.append(row);
   });
@@ -288,6 +288,7 @@ function submitAnswer() {
   const question = currentQuestion();
   const results = rankCandidates(question.candidates, question.opponents, {
     candidateModifiers: question.candidateModifiers,
+    candidateOverrides: question.candidateOverrides,
   });
   const isCorrect = state.selectedAnswer === question.answerTile;
   state.answered = true;
