@@ -206,6 +206,7 @@ export function validateQuestion(question) {
   }
 
   const visibleTiles = [...question.self.hand, ...(question.self.river ?? [])];
+  for (const meld of question.self.melds ?? []) visibleTiles.push(...meld.tiles);
   for (const opponent of Object.values(question.opponents)) {
     visibleTiles.push(...opponent.river);
     for (const meld of opponent.melds ?? []) visibleTiles.push(...meld.tiles);
@@ -227,4 +228,3 @@ export function validateQuestion(question) {
   }
   return issues;
 }
-

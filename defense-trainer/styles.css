@@ -628,6 +628,13 @@ summary:focus-visible {
   transform-origin: bottom right;
 }
 
+.seat-self .self-meld-zone {
+  right: 8px;
+  bottom: 10px;
+  transform: scale(0.68);
+  transform-origin: bottom right;
+}
+
 .meld {
   display: flex;
   gap: 2px;
@@ -1605,6 +1612,12 @@ dialog ol {
     transform-origin: bottom right;
   }
 
+  .seat-self .self-meld-zone {
+    right: 1px;
+    bottom: 5px;
+    transform: scale(0.46);
+  }
+
   .analysis-panel {
     padding: 24px 17px;
   }
@@ -1654,4 +1667,3 @@ dialog ol {
     transition-duration: 0.01ms !important;
   }
 }
-

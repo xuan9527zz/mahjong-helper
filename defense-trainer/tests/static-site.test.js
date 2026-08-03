@@ -40,6 +40,16 @@ test("副露位于牌河外侧并在手机端保持显示", () => {
   assert.match(css, /\.seat-left \.meld-zone\s*{[\s\S]*?left:\s*8px[\s\S]*?transform-origin:\s*bottom left/);
   assert.match(css, /\.seat-right \.meld-zone\s*{[\s\S]*?right:\s*8px[\s\S]*?transform-origin:\s*bottom right/);
   assert.doesNotMatch(css, /@media \(max-width: 650px\)[\s\S]*?\.meld-zone\s*{\s*display:\s*none/);
+  assert.match(html, /id="selfMeldZone"/);
+  assert.match(app, /renderMelds\(elements\.selfMeldZone, self\.melds\)/);
+  assert.match(css, /\.seat-self \.self-meld-zone/);
+});
+
+test("练习题已完整替换为Excel十题题库", () => {
+  const questionsSource = readFileSync(resolve(root, "js/questions.js"), "utf8");
+  assert.match(questionsSource, /"workbook": "广东麻将模拟对局10题_题库版\.xlsx"/);
+  assert.match(questionsSource, /"id": "Q010"/);
+  assert.doesNotMatch(questionsSource, /"id": "pass-window"|"id": "messy-river"|"id": "liability-loss"/);
 });
 
 test("自家牌河位于手牌上方并可在实战模式编辑", () => {
@@ -99,4 +109,3 @@ test("模拟练习支持导入题附带的候选结果覆盖", () => {
   assert.match(app, /candidateOverrides: question\.candidateOverrides/);
   assert.match(app, /result\.overrideSummary \?\? summarizeCandidate\(result\)/);
 });
-

@@ -26,6 +26,7 @@ const elements = {
   turnNotice: document.querySelector("#turnNotice"),
   selfRiver: document.querySelector("#selfRiver"),
   selfHand: document.querySelector("#selfHand"),
+  selfMeldZone: document.querySelector("#selfMeldZone"),
   promptText: document.querySelector("#promptText"),
   promptHint: document.querySelector("#promptHint"),
   candidateGrid: document.querySelector("#candidateGrid"),
@@ -114,6 +115,26 @@ function discardClass(tile, index, river, discardModes = []) {
     .join(" ");
 }
 
+function renderMelds(meldZone, melds = []) {
+  meldZone.replaceChildren();
+  melds.forEach((meldData) => {
+    const meld = document.createElement("div");
+    meld.className = "meld";
+    meld.title = `${meldData.type} ${meldData.tiles.map(tileName).join(" ")}`;
+    meldData.tiles.forEach((tile) => {
+      meld.append(
+        tileElement(tile, {
+          button: true,
+          className: tile === focusedTile() ? "tile-match" : "",
+          title: `${tileName(tile)}；点击高亮同牌`,
+          onClick: () => focusTableTile(tile),
+        }),
+      );
+    });
+    meldZone.append(meld);
+  });
+}
+
 function renderSeat(seatKey, opponent) {
   const seat = document.querySelector(`[data-seat="${seatKey}"]`);
   const heading = seat.querySelector(".seat-heading");
@@ -145,24 +166,7 @@ function renderSeat(seatKey, opponent) {
     );
   });
 
-  const meldZone = seat.querySelector(".meld-zone");
-  meldZone.replaceChildren();
-  (opponent.melds ?? []).forEach((meldData) => {
-    const meld = document.createElement("div");
-    meld.className = "meld";
-    meld.title = `${meldData.type} ${meldData.tiles.map(tileName).join(" ")}`;
-    meldData.tiles.forEach((tile) => {
-      meld.append(
-        tileElement(tile, {
-          button: true,
-          className: tile === focusedTile() ? "tile-match" : "",
-          title: `${tileName(tile)}；点击高亮同牌`,
-          onClick: () => focusTableTile(tile),
-        }),
-      );
-    });
-    meldZone.append(meld);
-  });
+  renderMelds(seat.querySelector(".meld-zone"), opponent.melds);
 }
 
 function renderSelf(self) {
@@ -170,6 +174,7 @@ function renderSelf(self) {
   heading.querySelector(".seat-wind").textContent = tileName(self.wind);
   elements.selfRiver.replaceChildren();
   elements.selfHand.replaceChildren();
+  renderMelds(elements.selfMeldZone, self.melds);
 
   (self.river ?? []).forEach((tile, index, river) => {
     elements.selfRiver.append(
@@ -297,7 +302,7 @@ function submitAnswer() {
   head.className = "feedback-head";
   const verdict = document.createElement("strong");
   verdict.className = `feedback-verdict ${isCorrect ? "correct" : "wrong"}`;
-  verdict.textContent = isCorrect ? "判断正确" : `更稳的是 ${tileName(question.answerTile)}`;
+  verdict.textContent = isCorrect ? "判断正确" : `题库答案是 ${tileName(question.answerTile)}`;
   const badge = chip(`你选择了 ${tileName(state.selectedAnswer)}`);
   head.append(verdict, badge);
 
@@ -478,6 +483,7 @@ function renderOpponentControls() {
 function visibleTileCount(tile) {
   let total = state.liveState.self.hand.filter((item) => item === tile).length;
   total += (state.liveState.self.river ?? []).filter((item) => item === tile).length;
+  for (const meld of state.liveState.self.melds ?? []) total += meld.tiles.filter((item) => item === tile).length;
   for (const opponent of Object.values(state.liveState.opponents)) {
     total += opponent.river.filter((item) => item === tile).length;
     for (const meld of opponent.melds ?? []) total += meld.tiles.filter((item) => item === tile).length;
@@ -632,4 +638,3 @@ elements.helpDialog.addEventListener("click", (event) => {
 validateData();
 updateDiscardModeControl();
 renderQuestion();
-

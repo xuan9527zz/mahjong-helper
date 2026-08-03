@@ -66,16 +66,21 @@ for (const question of questions) {
   });
 }
 
-test("Excel导入题Q001保留原始候选排序与公开信息结果", () => {
-  const question = questions.find((item) => item.id === "Q001");
-  assert.ok(question);
-  assert.equal(question.wallRemaining, 47);
-  assert.equal(question.self.hand.length, 14);
-  assert.equal(question.self.hand[question.self.drawnIndex], "8s");
-  const results = rankCandidates(question.candidates, question.opponents, {
-    candidateOverrides: question.candidateOverrides,
-  });
-  assert.deepEqual(results.map((item) => item.tile), ["4m", "7s", "7p", "P"]);
-  assert.equal(results[0].expectedLoss, 0.0019976575736073555);
-});
+test("Excel十题题库完整替换原有练习题", () => {
+  assert.equal(questions.length, 10);
+  assert.deepEqual(
+    questions.map((question) => question.id),
+    Array.from({ length: 10 }, (_, index) => `Q${String(index + 1).padStart(3, "0")}`),
+  );
+  for (const question of questions) {
+    assert.equal(question.source.workbook, "广东麻将模拟对局10题_题库版.xlsx");
+    assert.ok(question.candidateOverrides?.[question.answerTile]);
+  }
 
+  assert.equal(questions[0].self.hand[questions[0].self.drawnIndex], "6s");
+  assert.equal(questions[3].self.hand.length, 11);
+  assert.equal(questions[3].self.melds[0].type, "碰");
+  assert.deepEqual(questions[3].self.melds[0].tiles, ["P", "P", "P"]);
+  assert.equal(questions[8].self.drawnIndex, -1);
+  assert.deepEqual(questions[8].self.melds[0].tiles, ["P", "P", "P"]);
+});
