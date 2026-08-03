@@ -29,3 +29,9 @@ test("核心响应式断点与窄屏牌桌规则存在", () => {
   assert.match(css, /grid-template-areas:\s*"\. top \.[\s\S]*"self self self"/);
   assert.match(css, /--tile-w:\s*20px/);
 });
+
+test("三家牌河都以每排六张围绕中央区域排列", () => {
+  assert.match(css, /\.river\s*{[\s\S]*?grid-template-columns:\s*repeat\(6, var\(--tile-w\)\)/);
+  assert.match(css, /\.seat-left \.river\s*{[\s\S]*?rotate\(90deg\)/);
+  assert.match(css, /\.seat-right \.river\s*{[\s\S]*?rotate\(-90deg\)/);
+});
