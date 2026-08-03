@@ -75,3 +75,21 @@ test("界面精简并提供番数、同牌高亮与手摸切标记", () => {
   assert.match(css, /\.tile-card\.discard-handcut::after/);
 });
 
+test("任意牌可点击查找同牌且番数表采用指定口径", () => {
+  assert.match(app, /function focusTableTile\(tile\)/);
+  assert.match(app, /button: true,[\s\S]*onClick: \(\) => focusTableTile\(tile\)/);
+  assert.match(app, /state\.practiceFocusedTile = tile/);
+  assert.match(css, /\.tile-card\.tile-match::before/);
+
+  const fanValues = [
+    ["鸡胡", 2], ["对对胡", 4], ["混一色", 4], ["七小对", 8], ["豪七", 12],
+    ["双豪七", 24], ["三豪", 36], ["清一色", 8], ["幺九", 12], ["清幺九", 16],
+    ["四暗刻", 24], ["十三幺", 20], ["十八罗汉", 36], ["小三元", 12], ["大三元", 16],
+    ["小四喜", 16], ["大四喜", 20], ["字一色", 16], ["地胡", 25], ["天胡", 50],
+  ];
+  for (const [name, fan] of fanValues) {
+    assert.match(html, new RegExp(`<strong role="cell">${name}</strong><span role="cell">${fan} 番</span>`));
+  }
+  assert.match(html, /鸡胡[\s\S]*只能自摸/);
+});
+

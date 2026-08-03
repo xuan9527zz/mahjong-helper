@@ -9,7 +9,7 @@
       content="根据牌河、副露、过胡与包三家风险，练习广东麻将防点炮。"
     />
     <title>广东麻将防点炮训练器</title>
-    <link rel="stylesheet" href="./styles.css?v=0.1.9" />
+    <link rel="stylesheet" href="./styles.css?v=0.1.10" />
   </head>
   <body>
     <div class="app-shell">
@@ -110,6 +110,7 @@
             <div class="discard-legend" aria-label="舍牌标记说明">
               <span><i aria-hidden="true"></i>红点：手切</span>
               <span>无标记：摸切</span>
+              <span>点击任意牌：高亮同牌</span>
             </div>
           </div>
 
@@ -188,19 +189,32 @@
 
     <dialog id="rulesDialog" class="rules-dialog">
       <button class="dialog-close" id="closeRules" type="button" aria-label="关闭牌型番数">×</button>
-      <p class="panel-kicker">深圳常用鸡平胡参考</p>
+      <p class="panel-kicker">本站采用规则</p>
       <h2>牌型番数</h2>
-      <p class="rules-intro">本训练器采用“三番满、六番爆”的常见口径，用于判断点炮损失大小。</p>
+      <p class="rules-intro">防守推测与点炮损失按以下番数口径显示。</p>
       <div class="fan-table" role="table" aria-label="广东麻将牌型番数">
-        <div role="row"><strong role="cell">鸡胡</strong><span role="cell">0 番</span><small role="cell">刻子与顺子混合的普通胡牌</small></div>
-        <div role="row"><strong role="cell">平胡</strong><span role="cell">1 番</span><small role="cell">四组顺子</small></div>
-        <div role="row"><strong role="cell">混一色</strong><span role="cell">2 番</span><small role="cell">一种数牌加字牌</small></div>
-        <div role="row"><strong role="cell">对对胡</strong><span role="cell">2 番</span><small role="cell">四组刻子或杠</small></div>
-        <div role="row"><strong role="cell">清一色</strong><span role="cell">4 番</span><small role="cell">只有一种数牌</small></div>
-        <div role="row"><strong role="cell">幺九／清碰／小三元</strong><span role="cell">5 番</span><small role="cell">高番牌型</small></div>
-        <div role="row"><strong role="cell">十三幺／大三元／字一色</strong><span role="cell">6 番</span><small role="cell">爆胡档</small></div>
+        <div role="row"><strong role="cell">鸡胡</strong><span role="cell">2 番</span><small role="cell">只能自摸</small></div>
+        <div role="row"><strong role="cell">对对胡</strong><span role="cell">4 番</span></div>
+        <div role="row"><strong role="cell">混一色</strong><span role="cell">4 番</span></div>
+        <div role="row"><strong role="cell">七小对</strong><span role="cell">8 番</span></div>
+        <div role="row"><strong role="cell">豪七</strong><span role="cell">12 番</span></div>
+        <div role="row"><strong role="cell">双豪七</strong><span role="cell">24 番</span></div>
+        <div role="row"><strong role="cell">三豪</strong><span role="cell">36 番</span></div>
+        <div role="row"><strong role="cell">清一色</strong><span role="cell">8 番</span></div>
+        <div role="row"><strong role="cell">幺九</strong><span role="cell">12 番</span></div>
+        <div role="row"><strong role="cell">清幺九</strong><span role="cell">16 番</span></div>
+        <div role="row"><strong role="cell">四暗刻</strong><span role="cell">24 番</span></div>
+        <div role="row"><strong role="cell">十三幺</strong><span role="cell">20 番</span></div>
+        <div role="row"><strong role="cell">十八罗汉</strong><span role="cell">36 番</span></div>
+        <div role="row"><strong role="cell">小三元</strong><span role="cell">12 番</span></div>
+        <div role="row"><strong role="cell">大三元</strong><span role="cell">16 番</span></div>
+        <div role="row"><strong role="cell">小四喜</strong><span role="cell">16 番</span></div>
+        <div role="row"><strong role="cell">大四喜</strong><span role="cell">20 番</span></div>
+        <div role="row"><strong role="cell">字一色</strong><span role="cell">16 番</span></div>
+        <div role="row"><strong role="cell">地胡</strong><span role="cell">25 番</span></div>
+        <div role="row"><strong role="cell">天胡</strong><span role="cell">50 番</span></div>
       </div>
-      <p class="dialog-note">圈风、门风和三元刻可加番；不同牌馆的满番、爆胡与叠加约定可能不同，开局前请先确认。</p>
+      <p class="dialog-note">训练器以本表为准；鸡胡只允许自摸。</p>
     </dialog>
 
     <dialog id="helpDialog">
@@ -215,7 +229,7 @@
       <p class="dialog-note">当前三道题是结构演示题，后续可以只修改题目数据，不必重写页面或算法。</p>
     </dialog>
 
-    <script type="module" src="./js/app.js?v=0.1.9"></script>
+    <script type="module" src="./js/app.js?v=0.1.10"></script>
   </body>
 </html>
 

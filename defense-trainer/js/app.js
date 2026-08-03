@@ -7,6 +7,7 @@ const state = {
   mode: "practice",
   questionIndex: 0,
   selectedAnswer: null,
+  practiceFocusedTile: null,
   answered: false,
   liveState: null,
   liveCandidates: new Set(),
@@ -90,7 +91,17 @@ function chip(text, className = "meta-chip") {
 }
 
 function focusedTile() {
-  return state.mode === "practice" ? state.selectedAnswer : state.liveFocusedTile;
+  return state.mode === "practice" ? state.practiceFocusedTile : state.liveFocusedTile;
+}
+
+function focusTableTile(tile) {
+  if (state.mode === "practice") {
+    state.practiceFocusedTile = state.practiceFocusedTile === tile ? null : tile;
+    renderTable(currentQuestion());
+    return;
+  }
+  state.liveFocusedTile = state.liveFocusedTile === tile ? null : tile;
+  renderTable(state.liveState);
 }
 
 function discardClass(tile, index, river, discardModes = []) {
@@ -126,8 +137,10 @@ function renderSeat(seatKey, opponent) {
   opponent.river.forEach((tile, index) => {
     river.append(
       tileElement(tile, {
+        button: true,
         className: discardClass(tile, index, opponent.river, opponent.discardModes),
-        title: `${opponent.label}第${index + 1}张舍牌：${tileName(tile)}`,
+        title: `${opponent.label}第${index + 1}张舍牌：${tileName(tile)}；点击高亮同牌`,
+        onClick: () => focusTableTile(tile),
       }),
     );
   });
@@ -138,9 +151,16 @@ function renderSeat(seatKey, opponent) {
     const meld = document.createElement("div");
     meld.className = "meld";
     meld.title = `${meldData.type} ${meldData.tiles.map(tileName).join(" ")}`;
-    meldData.tiles.forEach((tile) =>
-      meld.append(tileElement(tile, { className: tile === focusedTile() ? "tile-match" : "" })),
-    );
+    meldData.tiles.forEach((tile) => {
+      meld.append(
+        tileElement(tile, {
+          button: true,
+          className: tile === focusedTile() ? "tile-match" : "",
+          title: `${tileName(tile)}；点击高亮同牌`,
+          onClick: () => focusTableTile(tile),
+        }),
+      );
+    });
     meldZone.append(meld);
   });
 }
@@ -154,27 +174,34 @@ function renderSelf(self) {
   (self.river ?? []).forEach((tile, index, river) => {
     elements.selfRiver.append(
       tileElement(tile, {
+        button: true,
         className: discardClass(tile, index, river, self.discardModes),
-        title: `你第${index + 1}张舍牌：${tileName(tile)}`,
+        title: `你第${index + 1}张舍牌：${tileName(tile)}；点击高亮同牌`,
+        onClick: () => focusTableTile(tile),
       }),
     );
   });
 
   self.hand.forEach((tile, index) => {
     const isSelected = state.mode === "live" && state.liveCandidates.has(tile);
-    const classes = [index === self.drawnIndex ? "drawn-tile" : "", isSelected ? "selected-candidate" : ""]
+    const isFocused = tile === focusedTile();
+    const classes = [
+      index === self.drawnIndex ? "drawn-tile" : "",
+      isSelected ? "selected-candidate" : "",
+      isFocused ? "focused-hand-tile" : "",
+    ]
       .filter(Boolean)
       .join(" ");
 
     elements.selfHand.append(
       tileElement(tile, {
-        button: state.mode === "live",
+        button: true,
         className: classes,
         title:
           state.mode === "live"
             ? `${tileName(tile)}：点击${isSelected ? "移出" : "加入"}候选`
-            : tileName(tile),
-        onClick: state.mode === "live" ? () => toggleLiveCandidate(tile) : undefined,
+            : `${tileName(tile)}：点击高亮牌河与副露中的同牌`,
+        onClick: state.mode === "live" ? () => toggleLiveCandidate(tile) : () => focusTableTile(tile),
       }),
     );
   });
@@ -197,6 +224,7 @@ function renderTable(boardState) {
 function selectAnswer(tile) {
   if (state.answered) return;
   state.selectedAnswer = tile;
+  state.practiceFocusedTile = tile;
   elements.submitAnswer.disabled = false;
   [...elements.candidateGrid.querySelectorAll(".candidate-button")].forEach((button) => {
     button.classList.toggle("active", button.dataset.tile === tile);
@@ -287,6 +315,7 @@ function submitAnswer() {
 function renderQuestion() {
   const question = currentQuestion();
   state.selectedAnswer = null;
+  state.practiceFocusedTile = null;
   state.answered = false;
   if (!state.liveState) {
     state.liveState = clone(question);
