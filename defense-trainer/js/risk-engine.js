@@ -165,17 +165,26 @@ export function rankCandidates(candidates, opponents, options = {}) {
       ...item,
       probability: override.probability ?? item.probability,
       expectedLoss: override.expectedLoss ?? item.expectedLoss,
+      decisionPriority: override.priority,
+      judgement: override.judgement,
       overrideSummary: override.summary,
     };
   });
   const maxLoss = Math.max(...analyzed.map((item) => item.expectedLoss), 0.0001);
+  const hasDecisionPriority = analyzed.some((item) => Number.isFinite(item.decisionPriority));
 
   return analyzed
     .map((item) => ({
       ...item,
       riskScore: Math.round((item.expectedLoss / maxLoss) * 100),
     }))
-    .sort((a, b) => a.expectedLoss - b.expectedLoss || a.probability - b.probability);
+    .sort((a, b) => {
+      if (hasDecisionPriority) {
+        const priorityDifference = (a.decisionPriority ?? 99) - (b.decisionPriority ?? 99);
+        if (priorityDifference) return priorityDifference;
+      }
+      return a.expectedLoss - b.expectedLoss || a.probability - b.probability;
+    });
 }
 
 export function summarizeCandidate(result) {
@@ -194,6 +203,9 @@ export function formatPercent(value) {
 export function validateQuestion(question) {
   const issues = [];
   if (!question.candidates.includes(question.answerTile)) issues.push("答案不在候选牌中");
+  for (const tile of question.reasonableTiles ?? [question.answerTile]) {
+    if (!question.candidates.includes(tile)) issues.push(`合理答案${tileName(tile)}不在候选牌中`);
+  }
   for (const tile of question.candidates) {
     if (!question.self.hand.includes(tile)) issues.push(`候选${tileName(tile)}不在自家手牌中`);
   }

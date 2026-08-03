@@ -1,5 +1,5 @@
-import { questionSet1 } from "./questions-data-1.js?v=0.1.14";
-import { questionSet2 } from "./questions-data-2.js?v=0.1.14";
+import { questionSet1 } from "./questions-data-1.js?v=0.1.15";
+import { questionSet2 } from "./questions-data-2.js?v=0.1.15";
 
 export const THREAT_LABELS = {
   "unknown": "信息不足",

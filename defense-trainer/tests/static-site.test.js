@@ -45,13 +45,16 @@ test("副露位于牌河外侧并在手机端保持显示", () => {
   assert.match(css, /\.seat-self \.self-meld-zone/);
 });
 
-test("练习题已完整替换为Excel十题题库", () => {
+test("练习题已完整替换为自然晚巡V2十题题库", () => {
   const questionsSource = ["questions.js", "questions-data-1.js", "questions-data-2.js"]
     .map((file) => readFileSync(resolve(root, "js", file), "utf8"))
     .join("\n");
-  assert.match(questionsSource, /"workbook": "广东麻将模拟对局10题_题库版\.xlsx"/);
-  assert.match(questionsSource, /"id": "Q010"/);
+  assert.match(questionsSource, /"bank"\s*:\s*"广东麻将自然晚巡防点炮题库V2\.json"/);
+  assert.match(questionsSource, /"id"\s*:\s*"V2Q010"/);
+  assert.match(questionsSource, /"reasonableTiles"/);
   assert.doesNotMatch(questionsSource, /"id": "pass-window"|"id": "messy-river"|"id": "liability-loss"/);
+  assert.match(app, /reasonableTiles\.includes\(state\.selectedAnswer\)/);
+  assert.match(app, /判断合理/);
 });
 
 test("自家牌河位于手牌上方并可在实战模式编辑", () => {

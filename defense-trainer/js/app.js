@@ -1,4 +1,4 @@
-import { questions, SUIT_LABELS, THREAT_LABELS } from "./questions.js?v=0.1.14";
+import { questions, SUIT_LABELS, THREAT_LABELS } from "./questions.js?v=0.1.15";
 import { formatPercent, rankCandidates, summarizeCandidate, validateQuestion } from "./risk-engine.js";
 import { tileImageUrl } from "./tile-images.js";
 import { ALL_TILES, sortTiles, tileName } from "./tiles.js";
@@ -295,14 +295,20 @@ function submitAnswer() {
     candidateModifiers: question.candidateModifiers,
     candidateOverrides: question.candidateOverrides,
   });
-  const isCorrect = state.selectedAnswer === question.answerTile;
+  const reasonableTiles = question.reasonableTiles ?? [question.answerTile];
+  const isRecommended = state.selectedAnswer === question.answerTile;
+  const isCorrect = reasonableTiles.includes(state.selectedAnswer);
   state.answered = true;
 
   const head = document.createElement("div");
   head.className = "feedback-head";
   const verdict = document.createElement("strong");
   verdict.className = `feedback-verdict ${isCorrect ? "correct" : "wrong"}`;
-  verdict.textContent = isCorrect ? "判断正确" : `题库答案是 ${tileName(question.answerTile)}`;
+  verdict.textContent = isRecommended
+    ? "判断正确"
+    : isCorrect
+      ? "判断合理"
+      : `题库首选是 ${tileName(question.answerTile)}`;
   const badge = chip(`你选择了 ${tileName(state.selectedAnswer)}`);
   head.append(verdict, badge);
 
