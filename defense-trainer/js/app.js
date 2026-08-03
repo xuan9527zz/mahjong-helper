@@ -14,6 +14,8 @@ const state = {
 };
 
 const elements = {
+  workspace: document.querySelector("#workspace"),
+  mahjongTable: document.querySelector("#mahjongTable"),
   modeButtons: [...document.querySelectorAll(".mode-button")],
   questionIndex: document.querySelector("#questionIndex"),
   questionTitle: document.querySelector("#questionTitle"),
@@ -97,7 +99,7 @@ function renderSeat(seatKey, opponent) {
   identity.append(wind, label);
 
   const threat = document.createElement("span");
-  threat.className = "threat-tag";
+  threat.className = "threat-tag live-only";
   threat.textContent = THREAT_LABELS[opponent.threat] ?? THREAT_LABELS.unknown;
   heading.append(identity, threat);
 
@@ -162,6 +164,10 @@ function renderTable(boardState) {
   elements.roundMark.textContent = boardState.round;
   elements.wallRemaining.textContent = boardState.wallRemaining;
   elements.turnNotice.textContent = state.mode === "practice" ? "轮到你出牌" : "实战编辑中";
+  elements.mahjongTable.setAttribute(
+    "aria-label",
+    state.mode === "practice" ? "模拟练习麻将牌桌" : "可编辑的实战推测牌桌",
+  );
 
   for (const seatKey of ["left", "top", "right"]) {
     renderSeat(seatKey, boardState.opponents[seatKey]);
@@ -274,8 +280,10 @@ function renderQuestion() {
   const question = currentQuestion();
   state.selectedAnswer = null;
   state.answered = false;
-  state.liveState = clone(question);
-  state.liveCandidates = new Set(question.candidates);
+  if (!state.liveState) {
+    state.liveState = clone(question);
+    state.liveCandidates = new Set(question.candidates);
+  }
 
   elements.questionIndex.textContent = `第 ${state.questionIndex + 1} / ${questions.length} 题`;
   elements.questionTitle.textContent = question.title;
@@ -305,7 +313,12 @@ function nextQuestion() {
 
 function switchMode(mode) {
   state.mode = mode;
-  elements.modeButtons.forEach((button) => button.classList.toggle("active", button.dataset.mode === mode));
+  elements.workspace.dataset.mode = mode;
+  elements.modeButtons.forEach((button) => {
+    const active = button.dataset.mode === mode;
+    button.classList.toggle("active", active);
+    button.setAttribute("aria-pressed", String(active));
+  });
   elements.practicePanel.classList.toggle("hidden", mode !== "practice");
   elements.livePanel.classList.toggle("hidden", mode !== "live");
   renderTable(mode === "live" ? state.liveState : currentQuestion());
@@ -524,8 +537,9 @@ function runLiveAnalysis() {
 }
 
 function resetLive() {
-  state.liveState = clone(currentQuestion());
-  state.liveCandidates = new Set(currentQuestion().candidates);
+  const sample = questions[0];
+  state.liveState = clone(sample);
+  state.liveCandidates = new Set(sample.candidates);
   renderTable(state.liveState);
   renderLiveCandidateList();
   renderOpponentControls();
@@ -558,3 +572,4 @@ elements.helpDialog.addEventListener("click", (event) => {
 
 validateData();
 renderQuestion();
+

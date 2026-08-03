@@ -48,3 +48,15 @@ test("自家牌河位于手牌上方并可在实战模式编辑", () => {
   assert.match(app, /state\.liveState\.self\.river/);
   assert.match(css, /\.seat-self \.self-river/);
 });
+
+test("模拟练习与实战推测使用独立的界面信息", () => {
+  assert.match(html, /id="workspace" data-mode="practice"/);
+  assert.match(html, /class="question-strip practice-only"/);
+  assert.match(html, /class="live-context live-only"/);
+  assert.match(html, /<small class="live-only">点击手牌可加入／移出候选<\/small>/);
+  assert.match(app, /threat\.className = "threat-tag live-only"/);
+  assert.match(app, /elements\.workspace\.dataset\.mode = mode/);
+  assert.match(css, /\.workspace\[data-mode="practice"\] \.live-only/);
+  assert.match(css, /\.workspace\[data-mode="live"\] \.practice-only/);
+});
+
