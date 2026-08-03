@@ -495,10 +495,9 @@ button.tile-card {
   width: 100%;
   height: 100%;
   border-radius: inherit;
-  background-image: var(--tile-sprite-image);
-  background-repeat: no-repeat;
-  background-size: 1386.3636% 566.6667%;
+  object-fit: cover;
   filter: saturate(1.08) contrast(1.08) brightness(1.015);
+  pointer-events: none;
 }
 
 .tile-card.selected-candidate {

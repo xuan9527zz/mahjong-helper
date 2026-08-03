@@ -1,9 +1,7 @@
 import { questions, SUIT_LABELS, THREAT_LABELS } from "./questions.js";
 import { formatPercent, rankCandidates, summarizeCandidate, validateQuestion } from "./risk-engine.js";
-import { TILE_SPRITE_URL, tileSpritePosition } from "./tile-sprite.js";
+import { tileImageUrl } from "./tile-images.js";
 import { ALL_TILES, sortTiles, tileName } from "./tiles.js";
-
-document.documentElement.style.setProperty("--tile-sprite-image", `url("${TILE_SPRITE_URL}")`);
 
 const state = {
   mode: "practice",
@@ -60,10 +58,13 @@ function tileElement(tile, options = {}) {
   element.title = options.title ?? tileName(tile);
   element.setAttribute("aria-label", options.ariaLabel ?? tileName(tile));
 
-  const glyph = document.createElement("span");
+  const glyph = document.createElement("img");
   glyph.className = "tile-glyph";
+  glyph.src = tileImageUrl(tile);
+  glyph.alt = "";
+  glyph.decoding = "async";
+  glyph.draggable = false;
   glyph.setAttribute("aria-hidden", "true");
-  glyph.style.backgroundPosition = tileSpritePosition(tile);
   element.append(glyph);
 
   if (options.onClick) element.addEventListener("click", options.onClick);
