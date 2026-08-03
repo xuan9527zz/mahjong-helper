@@ -88,8 +88,10 @@ test("任意牌可点击查找同牌且番数表采用指定口径", () => {
     ["小四喜", 16], ["大四喜", 20], ["字一色", 16], ["地胡", 25], ["天胡", 50],
   ];
   for (const [name, fan] of fanValues) {
-    assert.match(html, new RegExp(`<strong role="cell">${name}</strong><span role="cell">${fan} 番</span>`));
+    const label = name === "鸡胡" ? "鸡胡（只能自摸）" : name;
+    assert.match(html, new RegExp(`<strong role="cell">${label}</strong><span role="cell">${fan} 分</span>`));
   }
-  assert.match(html, /鸡胡[\s\S]*只能自摸/);
+  assert.match(html, /鸡胡（只能自摸）<\/strong><span role="cell">2 分/);
+  assert.doesNotMatch(html, /\d+ 番/);
 });
 
