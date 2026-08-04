@@ -1,0 +1,502 @@
+.feedback-content,
+.feedback-section,
+.feedback-disclosure,
+.candidate-detail-card,
+.feedback-disclosure-body,
+.candidate-detail-body {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.feedback-content {
+  display: grid;
+  gap: 12px;
+}
+
+.feedback-section,
+.feedback-disclosure {
+  border: 1px solid rgba(6, 45, 40, 0.12);
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.58);
+}
+
+.feedback-section {
+  padding: 13px;
+}
+
+.feedback-section > h3 {
+  margin: 0 0 10px;
+  color: var(--forest);
+  font-family: "Songti SC", "STSong", serif;
+  font-size: 17px;
+}
+
+.feedback-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.answer-comparison-strip {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+  margin-bottom: 11px;
+}
+
+.answer-chip {
+  display: block;
+  min-width: 0;
+  padding: 7px 9px;
+  overflow-wrap: anywhere;
+  text-align: center;
+}
+
+.selected-answer {
+  background: #fff;
+}
+
+.best-answer {
+  border-color: rgba(31, 124, 88, 0.24);
+  background: #edf8f1;
+  color: #176342;
+}
+
+.feedback-verdict {
+  font-family: "Songti SC", "STSong", serif;
+  font-size: 20px;
+}
+
+.feedback-verdict.correct {
+  color: #1f7c58;
+}
+
+.feedback-verdict.wrong {
+  color: var(--red);
+}
+
+.feedback-card > p,
+.result-summary,
+.feedback-card p,
+.feedback-card li,
+.feedback-card dd {
+  color: #55635e;
+  font-size: 12px;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+
+.candidate-metric-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.candidate-metric-card {
+  min-width: 0;
+  padding: 9px;
+  border: 1px solid rgba(6, 45, 40, 0.1);
+  border-radius: 10px;
+  background: #fff;
+}
+
+.candidate-metric-card.is-selected {
+  border-color: rgba(227, 62, 49, 0.42);
+  box-shadow: inset 0 0 0 1px rgba(227, 62, 49, 0.1);
+}
+
+.candidate-metric-card.is-best {
+  border-color: rgba(31, 124, 88, 0.38);
+}
+
+.candidate-metric-heading {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.candidate-metric-heading > strong {
+  color: var(--forest);
+  font-size: 14px;
+}
+
+.judgement-tag {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  min-height: 20px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.judgement-best,
+.judgement-good {
+  background: #e4f5ea;
+  color: #176342;
+}
+
+.judgement-caution {
+  background: #fff0d7;
+  color: #9a5c04;
+}
+
+.judgement-danger {
+  background: #ffe4df;
+  color: #a82b24;
+}
+
+.judgement-neutral {
+  background: #e9ece9;
+  color: #58635f;
+}
+
+.candidate-metric-values {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+  margin-top: 8px;
+}
+
+.candidate-metric-values > span {
+  min-width: 0;
+  padding: 6px;
+  border-radius: 8px;
+  background: #f4f3ed;
+}
+
+.candidate-metric-values small,
+.candidate-metric-values strong {
+  display: block;
+}
+
+.candidate-metric-values small {
+  color: var(--muted);
+  font-size: 8px;
+}
+
+.candidate-metric-values strong {
+  margin-top: 2px;
+  color: var(--forest);
+  font-size: 12px;
+}
+
+.feedback-disclosure > summary,
+.candidate-detail-card > summary {
+  position: relative;
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 36px 12px 13px;
+  color: var(--forest);
+  font-weight: 800;
+  cursor: pointer;
+  list-style: none;
+}
+
+.feedback-disclosure > summary::-webkit-details-marker,
+.candidate-detail-card > summary::-webkit-details-marker {
+  display: none;
+}
+
+.feedback-disclosure > summary::after,
+.candidate-detail-card > summary::after {
+  position: absolute;
+  top: 50%;
+  right: 13px;
+  color: var(--muted);
+  content: "+";
+  font-size: 18px;
+  font-weight: 500;
+  transform: translateY(-50%);
+}
+
+.feedback-disclosure[open] > summary::after,
+.candidate-detail-card[open] > summary::after {
+  content: "−";
+}
+
+.feedback-disclosure[open] > summary,
+.candidate-detail-card[open] > summary {
+  border-bottom: 1px solid rgba(6, 45, 40, 0.1);
+}
+
+.feedback-disclosure-body,
+.candidate-detail-body {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+}
+
+.explanation-group {
+  min-width: 0;
+}
+
+.explanation-group > h4 {
+  margin: 0 0 6px;
+  color: var(--forest);
+  font-size: 11px;
+  letter-spacing: 0.02em;
+}
+
+.explanation-group > p,
+.explanation-group > ul,
+.explanation-group > dl {
+  margin: 0;
+}
+
+.explanation-group ul {
+  display: grid;
+  gap: 4px;
+  padding-left: 17px;
+}
+
+.explanation-group dl {
+  display: grid;
+  grid-template-columns: minmax(78px, auto) minmax(0, 1fr);
+  gap: 5px 9px;
+}
+
+.explanation-group dt {
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.explanation-group dd {
+  min-width: 0;
+  margin: 0;
+}
+
+.candidate-evidence-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.candidate-evidence-grid .explanation-group {
+  padding: 9px;
+  border-radius: 10px;
+}
+
+.safety-evidence {
+  background: #edf8f1;
+}
+
+.danger-evidence {
+  background: #fff0ed;
+}
+
+.threat-overview-list {
+  display: grid;
+  gap: 7px;
+}
+
+.threat-overview-list article {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 4px 9px;
+  padding: 9px;
+  border: 1px solid rgba(6, 45, 40, 0.09);
+  border-radius: 10px;
+  background: #f9f8f3;
+}
+
+.threat-overview-list article > strong {
+  color: var(--forest);
+}
+
+.threat-overview-list article > span {
+  min-width: 0;
+  color: var(--muted);
+  font-size: 10px;
+  overflow-wrap: anywhere;
+}
+
+.threat-overview-list ul {
+  grid-column: 1 / -1;
+}
+
+.opponent-risk-list {
+  display: grid;
+  gap: 6px;
+}
+
+.opponent-risk-list article {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 6px;
+  padding: 8px;
+  border-radius: 9px;
+  background: #f2f2ec;
+  color: #55635e;
+  font-size: 10px;
+}
+
+.opponent-risk-list article > strong {
+  color: var(--forest);
+}
+
+.opponent-risk-level {
+  padding: 2px 5px;
+  border-radius: 999px;
+  background: #e3e7e3;
+  font-size: 8px;
+}
+
+.opponent-risk-list small {
+  grid-column: 1 / -1;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.analysis-confidence {
+  margin: 0;
+  padding-top: 3px;
+  border-top: 1px dashed rgba(6, 45, 40, 0.14);
+  color: var(--muted);
+  font-size: 10px !important;
+}
+
+.candidate-comparison-section {
+  display: grid;
+  gap: 8px;
+}
+
+.candidate-detail-card {
+  border: 1px solid rgba(6, 45, 40, 0.12);
+  border-radius: 11px;
+  background: #fff;
+}
+
+.candidate-detail-card.is-selected {
+  border-color: rgba(227, 62, 49, 0.48);
+}
+
+.candidate-detail-card.is-best {
+  box-shadow: inset 3px 0 0 #2b946a;
+}
+
+.candidate-detail-title {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px;
+}
+
+.candidate-detail-title > strong {
+  font-size: 14px;
+}
+
+.detail-marker {
+  padding: 2px 6px;
+  font-size: 8px;
+}
+
+.selected-marker {
+  background: #ffe8e4;
+  color: #a82b24;
+}
+
+.best-marker {
+  background: #e4f5ea;
+  color: #176342;
+}
+
+.candidate-detail-metrics {
+  flex: 0 0 auto;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.truth-review {
+  border-color: rgba(158, 91, 27, 0.22);
+  background: #fff8eb;
+}
+
+.truth-review-notice {
+  margin: 0;
+  padding: 9px 10px;
+  border-left: 3px solid var(--amber);
+  border-radius: 8px;
+  background: #fff1d4;
+  color: #825018 !important;
+  font-weight: 800;
+}
+
+.truth-opponents {
+  display: grid;
+  gap: 8px;
+}
+
+.truth-opponents > article {
+  padding: 9px;
+  border: 1px solid rgba(158, 91, 27, 0.14);
+  border-radius: 10px;
+  background: #fffdf7;
+}
+
+.legacy-explanation > p {
+  margin: 0;
+}
+
+@media (max-width: 650px) {
+  .feedback-card {
+    padding: 9px;
+  }
+
+  .feedback-section {
+    padding: 10px;
+  }
+
+  .feedback-head {
+    align-items: flex-start;
+  }
+
+  .answer-comparison-strip,
+  .candidate-metric-list,
+  .candidate-evidence-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .feedback-disclosure > summary,
+  .candidate-detail-card > summary {
+    align-items: flex-start;
+    padding: 11px 32px 11px 10px;
+  }
+
+  .candidate-detail-card > summary {
+    display: grid;
+  }
+
+  .candidate-detail-metrics {
+    justify-self: start;
+  }
+
+  .feedback-disclosure-body,
+  .candidate-detail-body {
+    padding: 10px;
+  }
+
+  .explanation-group dl {
+    grid-template-columns: minmax(72px, auto) minmax(0, 1fr);
+  }
+
+  .opponent-risk-list article {
+    grid-template-columns: auto auto minmax(0, 1fr);
+  }
+
+  .opponent-risk-list article > span:nth-of-type(3) {
+    grid-column: 2 / -1;
+  }
+}

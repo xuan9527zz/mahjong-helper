@@ -8,6 +8,8 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const html = readFileSync(resolve(root, "index.html"), "utf8");
 const app = readFileSync(resolve(root, "js/app.js"), "utf8");
 const css = readFileSync(resolve(root, "styles.css"), "utf8");
+const feedbackRenderer = readFileSync(resolve(root, "js/feedback-renderer.js"), "utf8");
+const feedbackCss = readFileSync(resolve(root, "styles-feedback.css"), "utf8");
 
 test("HTML引用的本地资源都存在", () => {
   const paths = [...html.matchAll(/(?:src|href)="(\.\/[^"?#]+)(?:[?#][^"]*)?"/g)].map((match) => match[1]);
@@ -54,7 +56,7 @@ test("练习题已完整替换为自然晚巡V2十题题库", () => {
   assert.match(questionsSource, /"reasonableTiles"/);
   assert.doesNotMatch(questionsSource, /"id": "pass-window"|"id": "messy-river"|"id": "liability-loss"/);
   assert.match(app, /reasonableTiles\.includes\(state\.selectedAnswer\)/);
-  assert.match(app, /判断合理/);
+  assert.match(feedbackRenderer, /判断合理/);
 });
 
 test("自家牌河位于手牌上方并可在实战模式编辑", () => {
@@ -113,4 +115,37 @@ test("任意牌可点击查找同牌且番数表采用指定口径", () => {
 test("模拟练习支持导入题附带的候选结果覆盖", () => {
   assert.match(app, /candidateOverrides: question\.candidateOverrides/);
   assert.match(app, /result\.overrideSummary \?\? summarizeCandidate\(result\)/);
+});
+
+test("新版反馈卡支持结构化详细解析且不在前端重算答案", () => {
+  assert.match(feedbackRenderer, /explanationPayload\(question\)/);
+  assert.match(feedbackRenderer, /payload\.mode === "detailed"/);
+  assert.match(feedbackRenderer, /renderConclusionSummary/);
+  assert.match(feedbackRenderer, /renderWhyBest/);
+  assert.match(feedbackRenderer, /renderCandidateComparison/);
+  assert.match(app, /hasDetailedExplanation = Boolean\(question\.detailedExplanation\)/);
+  assert.match(app, /state\.selectedAnswer === question\.answerTile/);
+  assert.doesNotMatch(app, /answerTile\s*=\s*rankCandidates/);
+});
+
+test("用户所选候选默认展开、答错时标出首选且真相复盘默认折叠", () => {
+  assert.match(feedbackRenderer, /disclosure\.open = candidate\.tile === selectedTile/);
+  assert.match(feedbackRenderer, /candidate\.tile === answerTile\) disclosure\.classList\.add\("is-best"\)/);
+  assert.match(feedbackRenderer, /事后真相不参与事前评分，仅用于复盘。/);
+  assert.doesNotMatch(feedbackRenderer, /truth-review[\s\S]*?\.open\s*=\s*true/);
+});
+
+test("旧题继续回退到简版解析", () => {
+  assert.match(feedbackRenderer, /renderLegacyExplanation/);
+  assert.match(feedbackRenderer, /else \{[\s\S]*?renderLegacyExplanation/);
+  assert.ok(existsSync(resolve(root, "js/explanation-model.js")));
+  assert.ok(existsSync(resolve(root, "docs/detailed-explanation-example.json")));
+});
+
+test("详细解析采用手机端单列折叠卡且禁止横向溢出", () => {
+  assert.match(css, /\.feedback-card\s*{[\s\S]*?overflow:\s*hidden/);
+  assert.match(feedbackCss, /\.feedback-disclosure > summary/);
+  assert.match(feedbackCss, /\.candidate-detail-card/);
+  assert.match(feedbackCss, /@media \(max-width: 650px\)[\s\S]*?\.candidate-metric-list,[\s\S]*?grid-template-columns:\s*minmax\(0, 1fr\)/);
+  assert.match(feedbackCss, /overflow-wrap:\s*anywhere/);
 });

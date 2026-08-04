@@ -1,0 +1,91 @@
+{
+  "detailedExplanation": {
+    "schemaVersion": "DETAILED-EXPLANATION-V1",
+    "publicAnalysis": {
+      "summary": "一筒是公开信息下的首选；九筒也属于合理防守，但对自家后续受入略差。",
+      "threatOverview": [
+        {
+          "seat": "right",
+          "seatLabel": "下家",
+          "route": "对对胡",
+          "threatLevel": "高",
+          "evidence": [
+            "已有三组副露，落地张数较多",
+            "近两巡连续手切，牌形变化较小"
+          ]
+        }
+      ],
+      "candidates": [
+        {
+          "tile": "1p",
+          "judgement": "最合理",
+          "isBest": true,
+          "ronProbability": 0,
+          "expectedRonLoss": 0,
+          "safetyEvidence": [
+            "同巡已有玩家打出一筒且无人响应",
+            "公开信念样本中未检出合法荣和"
+          ],
+          "dangerEvidence": [
+            "上家仍可能保留筒子搭子"
+          ],
+          "responseRules": {
+            "sameTurnFollow": "属于同巡跟打证据，但不等于永久安全。",
+            "pastTurnSafety": "过巡后只保留为较弱的公开安全信号。",
+            "furiten": "广东规则不存在日麻式永久振听；只按当前过胡窗口处理。",
+            "chi": "只有下家能吃你的牌；本题下家没有明显筒子顺子方向。",
+            "pong": "三家公开副露与牌河均未显示强烈的一筒对子保留。",
+            "kong": "公开信息下杠一筒的可能性很低。"
+          },
+          "byOpponent": [
+            {
+              "seat": "right",
+              "seatLabel": "下家",
+              "riskLevel": "低",
+              "ronProbability": 0,
+              "expectedRonLoss": 0,
+              "evidence": [
+                "主要发展方向为对对胡",
+                "一筒与其公开保留方向相容性较低"
+              ]
+            }
+          ],
+          "ownShapeCost": {
+            "shantenAfter": 2,
+            "ukeire": 10,
+            "scoreRoute": "保留当前高分路线",
+            "summary": "舍后一筒不会拆掉现有对子，受入损失较小。"
+          },
+          "comparison": "与九筒相比，公开点炮风险相同，但一筒对自家牌形的代价更低。",
+          "confidence": "中高",
+          "effectiveSampleSize": 1782.36
+        }
+      ],
+      "answerComparison": [
+        "一筒与九筒的公开点炮率相同。",
+        "一筒的自家牌形代价更低，因此被列为题库首选。"
+      ]
+    },
+    "truthReview": {
+      "summary": "固定暗手下，一筒没有造成荣和。",
+      "actualOutcome": "无人荣和、无人碰杠。",
+      "opponents": [
+        {
+          "seat": "right",
+          "seatLabel": "下家",
+          "actualReady": true,
+          "winningTiles": [
+            "1m"
+          ],
+          "hiddenHand": [
+            "1m",
+            "1m",
+            "2m",
+            "2m"
+          ],
+          "result": "不能荣和一筒"
+        }
+      ]
+    }
+  }
+}

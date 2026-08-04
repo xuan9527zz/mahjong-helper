@@ -2,6 +2,7 @@ import { questions, SUIT_LABELS, THREAT_LABELS } from "./questions.js?v=0.1.15";
 import { formatPercent, rankCandidates, summarizeCandidate, validateQuestion } from "./risk-engine.js";
 import { tileImageUrl } from "./tile-images.js";
 import { ALL_TILES, sortTiles, tileName } from "./tiles.js";
+import { renderFeedbackContent } from "./feedback-renderer.js?v=0.1.16";
 
 const state = {
   mode: "practice",
@@ -291,30 +292,26 @@ function renderRiskRows(results) {
 function submitAnswer() {
   if (!state.selectedAnswer || state.answered) return;
   const question = currentQuestion();
-  const results = rankCandidates(question.candidates, question.opponents, {
-    candidateModifiers: question.candidateModifiers,
-    candidateOverrides: question.candidateOverrides,
-  });
+  const hasDetailedExplanation = Boolean(question.detailedExplanation);
+  const results =
+    !hasDetailedExplanation
+      ? rankCandidates(question.candidates, question.opponents, {
+          candidateModifiers: question.candidateModifiers,
+          candidateOverrides: question.candidateOverrides,
+        })
+      : [];
   const reasonableTiles = question.reasonableTiles ?? [question.answerTile];
   const isRecommended = state.selectedAnswer === question.answerTile;
   const isCorrect = reasonableTiles.includes(state.selectedAnswer);
   state.answered = true;
-
-  const head = document.createElement("div");
-  head.className = "feedback-head";
-  const verdict = document.createElement("strong");
-  verdict.className = `feedback-verdict ${isCorrect ? "correct" : "wrong"}`;
-  verdict.textContent = isRecommended
-    ? "判断正确"
-    : isCorrect
-      ? "判断合理"
-      : `题库首选是 ${tileName(question.answerTile)}`;
-  const badge = chip(`你选择了 ${tileName(state.selectedAnswer)}`);
-  head.append(verdict, badge);
-
-  const explanation = document.createElement("p");
-  explanation.textContent = question.explanation;
-  elements.feedbackCard.replaceChildren(head, explanation, renderRiskRows(results));
+  const content = renderFeedbackContent({
+    question,
+    selectedTile: state.selectedAnswer,
+    isRecommended,
+    isCorrect,
+    results,
+  });
+  elements.feedbackCard.replaceChildren(content);
   elements.feedbackCard.classList.remove("hidden");
   elements.nextQuestion.classList.remove("hidden");
   elements.submitAnswer.disabled = true;

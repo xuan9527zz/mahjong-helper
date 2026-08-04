@@ -956,38 +956,12 @@ button.tile-card {
 .feedback-card {
   margin-top: 15px;
   padding: 15px;
+  overflow: hidden;
   border: 1px solid var(--line);
   border-radius: 14px;
   background: #f7f4eb;
 }
 
-.feedback-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-.feedback-verdict {
-  font-family: "Songti SC", "STSong", serif;
-  font-size: 20px;
-}
-
-.feedback-verdict.correct {
-  color: #1f7c58;
-}
-
-.feedback-verdict.wrong {
-  color: var(--red);
-}
-
-.feedback-card > p,
-.result-summary {
-  color: #55635e;
-  font-size: 12px;
-  line-height: 1.65;
-}
 
 .risk-list {
   display: grid;
@@ -1621,6 +1595,7 @@ dialog ol {
   .analysis-panel {
     padding: 24px 17px;
   }
+
 
   .candidate-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
