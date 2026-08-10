@@ -1449,8 +1449,8 @@ dialog ol {
       ". top ."
       "left center right"
       "self self self";
-    grid-template-columns: 76px minmax(156px, 1fr) 76px;
-    grid-template-rows: minmax(112px, auto) 164px minmax(146px, auto);
+    grid-template-columns: clamp(72px, 24vw, 88px) minmax(104px, 1fr) clamp(72px, 24vw, 88px);
+    grid-template-rows: minmax(124px, auto) 170px minmax(160px, auto);
     min-width: 0;
     min-height: 450px;
     border-width: 6px;
@@ -1510,10 +1510,34 @@ dialog ol {
     gap: 2px;
   }
 
+  .river {
+    --tile-w: 22px;
+    --tile-h: 31px;
+  }
+
   .seat-left .river,
   .seat-right .river {
     grid-template-columns: repeat(6, var(--tile-w));
     gap: 2px;
+  }
+
+  .seat-left .river {
+    left: min(92%, 71px);
+  }
+
+  .seat-right .river {
+    left: max(8%, calc(100% - 71px));
+  }
+
+  .seat-left .river .tile-card.discard-recent,
+  .seat-right .river .tile-card.discard-recent {
+    z-index: 5;
+    outline: 2px solid var(--acid);
+    outline-offset: 1px;
+    box-shadow:
+      inset -2px -2px 0 rgba(6, 45, 40, 0.08),
+      0 2px 0 #a9a294,
+      0 0 9px rgba(221, 245, 111, 0.8);
   }
 
   .river {

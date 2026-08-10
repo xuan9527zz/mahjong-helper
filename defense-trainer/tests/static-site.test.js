@@ -30,6 +30,12 @@ test("核心响应式断点与窄屏牌桌规则存在", () => {
   assert.match(css, /@media \(max-width: 650px\)/);
   assert.match(css, /grid-template-areas:\s*"\. top \.[\s\S]*"self self self"/);
   assert.match(css, /--tile-w:\s*20px/);
+  assert.match(css, /grid-template-columns:\s*clamp\(72px, 24vw, 88px\) minmax\(104px, 1fr\)/);
+  assert.match(css, /\.river\s*{\s*--tile-w:\s*22px;\s*--tile-h:\s*31px;/);
+  assert.match(css, /\.seat-left \.river\s*{\s*left:\s*min\(92%, 71px\)/);
+  assert.match(css, /\.seat-right \.river\s*{\s*left:\s*max\(8%, calc\(100% - 71px\)\)/);
+  assert.match(css, /\.seat-left \.river \.tile-card\.discard-recent/);
+  assert.match(html, /styles\.css\?v=0\.1\.22/);
 });
 
 test("三家牌河都以每排六张围绕中央区域排列", () => {
