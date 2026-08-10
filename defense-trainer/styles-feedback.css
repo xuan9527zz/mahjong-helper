@@ -102,40 +102,113 @@
   text-align: center;
 }
 
-.set-summary-card {
+.set-result-card {
   display: grid;
-  justify-items: center;
-  padding: 18px 13px;
-  border-color: rgba(31, 124, 88, 0.28);
+  gap: 12px;
+  margin-top: 12px;
+  padding: 15px;
+  overflow: hidden;
+  border: 1px solid rgba(31, 124, 88, 0.28);
+  border-radius: 14px;
   background: linear-gradient(145deg, #edf8f1, #fffdf5);
-  text-align: center;
 }
 
-.set-summary-label {
+.set-result-heading {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+}
+
+.set-result-heading span {
   color: #176342;
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 0.08em;
 }
 
-.set-accuracy-rate {
-  margin-top: 3px;
+.set-result-heading p {
+  margin: 4px 0 0;
   color: var(--forest);
-  font-family: "Songti SC", "STSong", serif;
-  font-size: clamp(42px, 11vw, 62px);
-  line-height: 1;
-}
-
-.set-summary-card > p {
-  margin: 7px 0 1px;
-  color: var(--forest);
-  font-size: 14px;
+  font-size: 13px;
   font-weight: 800;
 }
 
-.set-summary-card > small {
-  color: var(--muted);
+.set-result-rate {
+  color: var(--forest);
+  font-family: "Songti SC", "STSong", serif;
+  font-size: clamp(34px, 9vw, 48px);
+  line-height: 1;
+}
+
+.set-result-table {
+  display: grid;
+  overflow: hidden;
+  border: 1px solid rgba(6, 45, 40, 0.12);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.set-result-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 74px;
+  min-height: 29px;
+  align-items: center;
+  border-top: 1px solid rgba(6, 45, 40, 0.08);
+}
+
+.set-result-row:first-child {
+  border-top: 0;
+}
+
+.set-result-row > span,
+.set-result-row > strong {
+  padding: 5px 10px;
+}
+
+.set-result-row > strong,
+.set-result-row > span:last-child {
+  border-left: 1px solid rgba(6, 45, 40, 0.08);
+  text-align: center;
+}
+
+.set-result-table-head {
+  background: rgba(6, 45, 40, 0.07);
+  color: var(--forest);
   font-size: 10px;
+  font-weight: 800;
+}
+
+.set-result-row:not(.set-result-table-head) > span {
+  color: #55635e;
+  font-size: 11px;
+}
+
+.set-result-row.is-wrong {
+  background: rgba(255, 232, 228, 0.42);
+}
+
+.set-result-actions {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.set-result-actions .secondary-button {
+  margin-top: 0;
+}
+
+.set-result-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.46;
+}
+
+.set-result-card.hidden {
+  display: none;
+}
+
+.feedback-card + .secondary-button + .set-result-card {
+  clear: both;
 }
 
 .candidate-metric-list {

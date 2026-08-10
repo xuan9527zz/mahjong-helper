@@ -2,7 +2,7 @@ import { formatPercent, rankCandidates, summarizeCandidate, validateQuestion } f
 import { tileImageUrl } from "./tile-images.js";
 import { ALL_TILES, sortTiles, tileName } from "./tiles.js";
 import { renderFeedbackContent } from "./feedback-renderer.js?v=0.1.16";
-import { QUESTION_SET_SIZE, scoreSummary, setWindow } from "./set-progress.js?v=0.1.19";
+import { QUESTION_SET_SIZE, scoreSummary, setWindow } from "./set-progress.js?v=0.1.20";
 
 const TRIAL_VARIANT = new URLSearchParams(window.location.search).get("trial");
 const TRIAL_MODE = TRIAL_VARIANT === "v3";
@@ -20,6 +20,10 @@ const state = {
   setAnswered: 0,
   setCorrect: 0,
   setComplete: false,
+  setResults: [],
+  reviewQueue: null,
+  reviewPosition: 0,
+  reviewSourceSet: null,
   liveState: null,
   liveCandidates: new Set(),
   liveFocusedTile: null,
@@ -44,6 +48,7 @@ const elements = {
   submitAnswer: document.querySelector("#submitAnswer"),
   feedbackCard: document.querySelector("#feedbackCard"),
   nextQuestion: document.querySelector("#nextQuestion"),
+  setResultCard: document.querySelector("#setResultCard"),
   practicePanel: document.querySelector("#practicePanel"),
   livePanel: document.querySelector("#livePanel"),
   liveCandidateList: document.querySelector("#liveCandidateList"),
@@ -72,8 +77,24 @@ function currentQuestion() {
   return questions[state.questionIndex];
 }
 
-function currentSet() {
-  return setWindow(state.questionIndex, questions.length, QUESTION_SET_SIZE);
+function sourceSet() {
+  return state.reviewSourceSet ?? setWindow(state.questionIndex, questions.length, QUESTION_SET_SIZE);
+}
+
+function currentProgress() {
+  if (!state.reviewQueue) return setWindow(state.questionIndex, questions.length, QUESTION_SET_SIZE);
+  const source = sourceSet();
+  return {
+    ...source,
+    length: state.reviewQueue.length,
+    position: state.reviewPosition + 1,
+    isLastQuestion: state.reviewPosition === state.reviewQueue.length - 1,
+    isReview: true,
+  };
+}
+
+function currentQuestionNumber() {
+  return state.questionIndex - sourceSet().start + 1;
 }
 
 function tileElement(tile, options = {}) {
@@ -320,6 +341,11 @@ function submitAnswer() {
   state.answered = true;
   state.setAnswered += 1;
   if (isCorrect) state.setCorrect += 1;
+  state.setResults.push({
+    questionIndex: state.questionIndex,
+    questionNumber: currentQuestionNumber(),
+    isCorrect,
+  });
   const content = TRIAL_MODE && !hasDetailedExplanation
     ? renderTrialFeedback(question, state.selectedAnswer, isRecommended, isCorrect)
     : renderFeedbackContent({
@@ -329,19 +355,14 @@ function submitAnswer() {
         isCorrect,
         results,
       });
-  const setInfo = currentSet();
+  const setInfo = currentProgress();
   if (setInfo.isLastQuestion) {
     state.setComplete = true;
-    content.prepend(renderSetSummary(setInfo));
   }
   elements.feedbackCard.replaceChildren(content);
   elements.feedbackCard.classList.remove("hidden");
   elements.nextQuestion.classList.remove("hidden");
-  elements.nextQuestion.textContent = state.setComplete
-    ? setInfo.hasNextSet
-      ? "下一套"
-      : "再练本套"
-    : "下一题";
+  elements.nextQuestion.textContent = state.setComplete ? "显示结果" : "下一题";
   elements.submitAnswer.disabled = true;
 
   [...elements.candidateGrid.querySelectorAll(".candidate-button")].forEach((button) => {
@@ -349,23 +370,99 @@ function submitAnswer() {
   });
 }
 
-function renderSetSummary(setInfo) {
+function renderSetResults() {
+  const setInfo = currentProgress();
+  const originalSet = sourceSet();
   const score = scoreSummary(state.setCorrect, state.setAnswered);
-  const section = document.createElement("section");
-  section.className = "feedback-section set-summary-card";
-
+  const heading = document.createElement("div");
+  heading.className = "set-result-heading";
+  const headingText = document.createElement("div");
   const label = document.createElement("span");
-  label.className = "set-summary-label";
-  label.textContent = `第 ${setInfo.setNumber} 套完成`;
-  const rate = document.createElement("strong");
-  rate.className = "set-accuracy-rate";
-  rate.textContent = `${score.accuracy}%`;
+  label.textContent = setInfo.isReview ? "错题练习完成" : `第 ${setInfo.setNumber} 套完成`;
   const caption = document.createElement("p");
   caption.textContent = `答对 ${score.correctAnswers} / ${score.answeredQuestions} 题`;
-  const note = document.createElement("small");
-  note.textContent = score.accuracy === 100 ? "本套全部答对" : "正确率按题库已有答案判定统计";
-  section.append(label, rate, caption, note);
-  return section;
+  headingText.append(label, caption);
+  const rate = document.createElement("strong");
+  rate.className = "set-result-rate";
+  rate.textContent = `${score.accuracy}%`;
+  heading.append(headingText, rate);
+
+  const table = document.createElement("div");
+  table.className = "set-result-table";
+  table.setAttribute("role", "table");
+  table.setAttribute("aria-label", "本套各题答题结果");
+  const tableHead = document.createElement("div");
+  tableHead.className = "set-result-row set-result-table-head";
+  tableHead.setAttribute("role", "row");
+  tableHead.innerHTML = '<span role="columnheader">题目号</span><span role="columnheader">结果</span>';
+  table.append(tableHead);
+  state.setResults.forEach((result) => {
+    const row = document.createElement("div");
+    row.className = `set-result-row ${result.isCorrect ? "is-correct" : "is-wrong"}`;
+    row.setAttribute("role", "row");
+    const number = document.createElement("span");
+    number.setAttribute("role", "cell");
+    number.textContent = `第 ${result.questionNumber} 题`;
+    const mark = document.createElement("strong");
+    mark.setAttribute("role", "cell");
+    mark.setAttribute("aria-label", result.isCorrect ? "正确" : "错误");
+    mark.textContent = result.isCorrect ? "✅" : "❌";
+    row.append(number, mark);
+    table.append(row);
+  });
+
+  const wrongIndexes = state.setResults.filter((result) => !result.isCorrect).map((result) => result.questionIndex);
+  const actions = document.createElement("div");
+  actions.className = "set-result-actions";
+  const wrongButton = document.createElement("button");
+  wrongButton.type = "button";
+  wrongButton.className = "secondary-button";
+  wrongButton.textContent = "练习错题";
+  wrongButton.disabled = wrongIndexes.length === 0;
+  wrongButton.title = wrongIndexes.length ? "重新练习本次答错的题目" : "本次没有错题";
+  wrongButton.addEventListener("click", () => startWrongPractice(wrongIndexes, originalSet));
+  const nextSetButton = document.createElement("button");
+  nextSetButton.type = "button";
+  nextSetButton.className = "secondary-button";
+  nextSetButton.textContent = "练习下一套";
+  nextSetButton.disabled = !originalSet.hasNextSet;
+  nextSetButton.title = originalSet.hasNextSet ? "进入下一套10题" : "暂无下一套题目";
+  nextSetButton.addEventListener("click", () => startNextSet(originalSet));
+  actions.append(wrongButton, nextSetButton);
+
+  elements.setResultCard.replaceChildren(heading, table, actions);
+  elements.setResultCard.classList.remove("hidden");
+}
+
+function resetPracticeResults() {
+  state.setAnswered = 0;
+  state.setCorrect = 0;
+  state.setComplete = false;
+  state.setResults = [];
+  elements.setResultCard.replaceChildren();
+  elements.setResultCard.classList.add("hidden");
+}
+
+function startWrongPractice(questionIndexes, originalSet) {
+  if (!questionIndexes.length) return;
+  state.reviewQueue = [...questionIndexes];
+  state.reviewPosition = 0;
+  state.reviewSourceSet = { ...originalSet };
+  state.questionIndex = state.reviewQueue[0];
+  resetPracticeResults();
+  renderQuestion();
+  elements.workspace.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function startNextSet(originalSet) {
+  if (!originalSet.hasNextSet) return;
+  state.reviewQueue = null;
+  state.reviewPosition = 0;
+  state.reviewSourceSet = null;
+  state.questionIndex = originalSet.end;
+  resetPracticeResults();
+  renderQuestion();
+  elements.workspace.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 function renderTrialFeedback(question, selectedTile, isRecommended, isCorrect) {
@@ -403,16 +500,19 @@ function renderQuestion() {
     state.liveCandidates = new Set(question.candidates);
   }
 
-  const setInfo = currentSet();
-  elements.questionIndex.textContent = `第 ${setInfo.position} / ${setInfo.length} 题${
-    setInfo.setCount > 1 ? ` · 第 ${setInfo.setNumber} / ${setInfo.setCount} 套` : ""
-  }`;
+  const setInfo = currentProgress();
+  elements.questionIndex.textContent = setInfo.isReview
+    ? `错题练习 · 第 ${setInfo.position} / ${setInfo.length} 题`
+    : `第 ${setInfo.position} / ${setInfo.length} 题${
+        setInfo.setCount > 1 ? ` · 第 ${setInfo.setNumber} / ${setInfo.setCount} 套` : ""
+      }`;
   elements.questionTitle.textContent = question.title;
   elements.wallMeta.textContent = `牌墙 ${question.wallRemaining} 张`;
   elements.promptText.textContent = question.prompt;
   elements.promptHint.textContent = question.hint;
   elements.feedbackCard.classList.add("hidden");
   elements.nextQuestion.classList.add("hidden");
+  elements.setResultCard.classList.add("hidden");
   elements.submitAnswer.disabled = true;
   renderCandidates(question);
   renderTable(state.mode === "live" ? state.liveState : question);
@@ -422,12 +522,15 @@ function renderQuestion() {
 }
 
 function nextQuestion() {
-  const setInfo = currentSet();
   if (state.setComplete) {
-    state.questionIndex = setInfo.hasNextSet ? setInfo.end : setInfo.start;
-    state.setAnswered = 0;
-    state.setCorrect = 0;
-    state.setComplete = false;
+    renderSetResults();
+    elements.nextQuestion.classList.add("hidden");
+    elements.setResultCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    return;
+  }
+  if (state.reviewQueue) {
+    state.reviewPosition += 1;
+    state.questionIndex = state.reviewQueue[state.reviewPosition];
   } else {
     state.questionIndex += 1;
   }
