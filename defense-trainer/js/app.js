@@ -1,8 +1,14 @@
-import { questions, SUIT_LABELS, THREAT_LABELS } from "./questions.js?v=0.1.15";
 import { formatPercent, rankCandidates, summarizeCandidate, validateQuestion } from "./risk-engine.js";
 import { tileImageUrl } from "./tile-images.js";
 import { ALL_TILES, sortTiles, tileName } from "./tiles.js";
 import { renderFeedbackContent } from "./feedback-renderer.js?v=0.1.16";
+
+const TRIAL_VARIANT = new URLSearchParams(window.location.search).get("trial");
+const TRIAL_MODE = TRIAL_VARIANT === "v3";
+const questionModule = await import(
+  TRIAL_MODE ? "./trial-questions.js?v=0.1.18" : "./questions.js?v=0.1.15"
+);
+const { questions, SUIT_LABELS, THREAT_LABELS } = questionModule;
 
 const state = {
   mode: "practice",
@@ -294,7 +300,7 @@ function submitAnswer() {
   const question = currentQuestion();
   const hasDetailedExplanation = Boolean(question.detailedExplanation);
   const results =
-    !hasDetailedExplanation
+    !TRIAL_MODE && !hasDetailedExplanation
       ? rankCandidates(question.candidates, question.opponents, {
           candidateModifiers: question.candidateModifiers,
           candidateOverrides: question.candidateOverrides,
@@ -304,13 +310,15 @@ function submitAnswer() {
   const isRecommended = state.selectedAnswer === question.answerTile;
   const isCorrect = reasonableTiles.includes(state.selectedAnswer);
   state.answered = true;
-  const content = renderFeedbackContent({
-    question,
-    selectedTile: state.selectedAnswer,
-    isRecommended,
-    isCorrect,
-    results,
-  });
+  const content = TRIAL_MODE && !hasDetailedExplanation
+    ? renderTrialFeedback(question, state.selectedAnswer, isRecommended, isCorrect)
+    : renderFeedbackContent({
+        question,
+        selectedTile: state.selectedAnswer,
+        isRecommended,
+        isCorrect,
+        results,
+      });
   elements.feedbackCard.replaceChildren(content);
   elements.feedbackCard.classList.remove("hidden");
   elements.nextQuestion.classList.remove("hidden");
@@ -319,6 +327,31 @@ function submitAnswer() {
   [...elements.candidateGrid.querySelectorAll(".candidate-button")].forEach((button) => {
     button.disabled = true;
   });
+}
+
+function renderTrialFeedback(question, selectedTile, isRecommended, isCorrect) {
+  const section = document.createElement("section");
+  section.className = "feedback-section trial-feedback";
+
+  const head = document.createElement("div");
+  head.className = "feedback-head";
+  const verdict = document.createElement("strong");
+  verdict.className = `feedback-verdict ${isCorrect ? "correct" : "wrong"}`;
+  verdict.textContent = isRecommended ? "回答正确" : isCorrect ? "判断合理" : "回答错误";
+  head.append(verdict, chip(`第 ${state.questionIndex + 1} 题`));
+
+  const choices = document.createElement("div");
+  choices.className = "answer-comparison-strip";
+  choices.append(
+    chip(`你的选择：${tileName(selectedTile)}`, "answer-chip selected-answer"),
+    chip(`题库首选：${tileName(question.answerTile)}`, "answer-chip best-answer"),
+  );
+
+  const note = document.createElement("p");
+  note.className = "trial-feedback-note";
+  note.textContent = "试用版仅核对答案，暂不展示风险数值或解析。";
+  section.append(head, choices, note);
+  return section;
 }
 
 function renderQuestion() {
@@ -610,6 +643,24 @@ function validateData() {
   if (issues.length) console.warn("题目数据检查未通过", issues);
 }
 
+function configureTrialMode() {
+  if (!TRIAL_MODE) return;
+  document.body.classList.add("trial-mode");
+  const trialLabel = "V3";
+  document.title = `广东麻将防点炮训练器｜${trialLabel} 试用版`;
+  const liveModeButton = document.querySelector('.mode-button[data-mode="live"]');
+  if (liveModeButton) liveModeButton.hidden = true;
+  const practiceModeButton = document.querySelector('.mode-button[data-mode="practice"]');
+  if (practiceModeButton) {
+    practiceModeButton.querySelector("strong").textContent = `${trialLabel} 试用练习`;
+    practiceModeButton.querySelector("small").textContent = "10 道自然晚巡题｜含详细解析";
+  }
+  const modelBadge = document.querySelector(".model-badge");
+  if (modelBadge) modelBadge.lastChild.textContent = ` ${trialLabel} 题库试用版`;
+  const panelKicker = document.querySelector("#practicePanel .panel-kicker");
+  if (panelKicker) panelKicker.textContent = "V2 TRIAL";
+}
+
 elements.modeButtons.forEach((button) => button.addEventListener("click", () => switchMode(button.dataset.mode)));
 elements.submitAnswer.addEventListener("click", submitAnswer);
 elements.nextQuestion.addEventListener("click", nextQuestion);
@@ -638,6 +689,7 @@ elements.helpDialog.addEventListener("click", (event) => {
   if (event.target === elements.helpDialog) elements.helpDialog.close();
 });
 
+configureTrialMode();
 validateData();
 updateDiscardModeControl();
 renderQuestion();

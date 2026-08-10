@@ -88,6 +88,20 @@
   overflow-wrap: anywhere;
 }
 
+.trial-mode .mode-switch {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.trial-mode .mode-button[data-mode="practice"] {
+  cursor: default;
+}
+
+.trial-feedback-note {
+  margin: 0;
+  padding-top: 2px;
+  text-align: center;
+}
+
 .candidate-metric-list {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
