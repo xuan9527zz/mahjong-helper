@@ -7,7 +7,7 @@ import { QUESTION_SET_SIZE, scoreSummary, setWindow } from "./set-progress.js?v=
 const TRIAL_VARIANT = new URLSearchParams(window.location.search).get("trial");
 const TRIAL_MODE = TRIAL_VARIANT === "v3";
 const questionModule = await import(
-  TRIAL_MODE ? "./trial-questions.js?v=0.1.18" : "./questions.js?v=0.1.15"
+  TRIAL_MODE ? "./trial-questions.js?v=0.1.21" : "./questions.js?v=0.1.15"
 );
 const { questions, SUIT_LABELS, THREAT_LABELS } = questionModule;
 
@@ -806,12 +806,12 @@ function configureTrialMode() {
   const practiceModeButton = document.querySelector('.mode-button[data-mode="practice"]');
   if (practiceModeButton) {
     practiceModeButton.querySelector("strong").textContent = `${trialLabel} 试用练习`;
-    practiceModeButton.querySelector("small").textContent = "10 道自然晚巡题｜含详细解析";
+    practiceModeButton.querySelector("small").textContent = "10 套 · 每套 10 题｜含详细解析";
   }
   const modelBadge = document.querySelector(".model-badge");
   if (modelBadge) modelBadge.lastChild.textContent = ` ${trialLabel} 题库试用版`;
   const panelKicker = document.querySelector("#practicePanel .panel-kicker");
-  if (panelKicker) panelKicker.textContent = "V2 TRIAL";
+  if (panelKicker) panelKicker.textContent = "10-SET TRAINING";
 }
 
 elements.modeButtons.forEach((button) => button.addEventListener("click", () => switchMode(button.dataset.mode)));
