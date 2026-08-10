@@ -102,6 +102,42 @@
   text-align: center;
 }
 
+.set-summary-card {
+  display: grid;
+  justify-items: center;
+  padding: 18px 13px;
+  border-color: rgba(31, 124, 88, 0.28);
+  background: linear-gradient(145deg, #edf8f1, #fffdf5);
+  text-align: center;
+}
+
+.set-summary-label {
+  color: #176342;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.set-accuracy-rate {
+  margin-top: 3px;
+  color: var(--forest);
+  font-family: "Songti SC", "STSong", serif;
+  font-size: clamp(42px, 11vw, 62px);
+  line-height: 1;
+}
+
+.set-summary-card > p {
+  margin: 7px 0 1px;
+  color: var(--forest);
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.set-summary-card > small {
+  color: var(--muted);
+  font-size: 10px;
+}
+
 .candidate-metric-list {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));

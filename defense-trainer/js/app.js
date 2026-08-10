@@ -2,6 +2,7 @@ import { formatPercent, rankCandidates, summarizeCandidate, validateQuestion } f
 import { tileImageUrl } from "./tile-images.js";
 import { ALL_TILES, sortTiles, tileName } from "./tiles.js";
 import { renderFeedbackContent } from "./feedback-renderer.js?v=0.1.16";
+import { QUESTION_SET_SIZE, scoreSummary, setWindow } from "./set-progress.js?v=0.1.19";
 
 const TRIAL_VARIANT = new URLSearchParams(window.location.search).get("trial");
 const TRIAL_MODE = TRIAL_VARIANT === "v3";
@@ -16,6 +17,9 @@ const state = {
   selectedAnswer: null,
   practiceFocusedTile: null,
   answered: false,
+  setAnswered: 0,
+  setCorrect: 0,
+  setComplete: false,
   liveState: null,
   liveCandidates: new Set(),
   liveFocusedTile: null,
@@ -66,6 +70,10 @@ const clone = (value) => JSON.parse(JSON.stringify(value));
 
 function currentQuestion() {
   return questions[state.questionIndex];
+}
+
+function currentSet() {
+  return setWindow(state.questionIndex, questions.length, QUESTION_SET_SIZE);
 }
 
 function tileElement(tile, options = {}) {
@@ -310,6 +318,8 @@ function submitAnswer() {
   const isRecommended = state.selectedAnswer === question.answerTile;
   const isCorrect = reasonableTiles.includes(state.selectedAnswer);
   state.answered = true;
+  state.setAnswered += 1;
+  if (isCorrect) state.setCorrect += 1;
   const content = TRIAL_MODE && !hasDetailedExplanation
     ? renderTrialFeedback(question, state.selectedAnswer, isRecommended, isCorrect)
     : renderFeedbackContent({
@@ -319,14 +329,43 @@ function submitAnswer() {
         isCorrect,
         results,
       });
+  const setInfo = currentSet();
+  if (setInfo.isLastQuestion) {
+    state.setComplete = true;
+    content.prepend(renderSetSummary(setInfo));
+  }
   elements.feedbackCard.replaceChildren(content);
   elements.feedbackCard.classList.remove("hidden");
   elements.nextQuestion.classList.remove("hidden");
+  elements.nextQuestion.textContent = state.setComplete
+    ? setInfo.hasNextSet
+      ? "下一套"
+      : "再练本套"
+    : "下一题";
   elements.submitAnswer.disabled = true;
 
   [...elements.candidateGrid.querySelectorAll(".candidate-button")].forEach((button) => {
     button.disabled = true;
   });
+}
+
+function renderSetSummary(setInfo) {
+  const score = scoreSummary(state.setCorrect, state.setAnswered);
+  const section = document.createElement("section");
+  section.className = "feedback-section set-summary-card";
+
+  const label = document.createElement("span");
+  label.className = "set-summary-label";
+  label.textContent = `第 ${setInfo.setNumber} 套完成`;
+  const rate = document.createElement("strong");
+  rate.className = "set-accuracy-rate";
+  rate.textContent = `${score.accuracy}%`;
+  const caption = document.createElement("p");
+  caption.textContent = `答对 ${score.correctAnswers} / ${score.answeredQuestions} 题`;
+  const note = document.createElement("small");
+  note.textContent = score.accuracy === 100 ? "本套全部答对" : "正确率按题库已有答案判定统计";
+  section.append(label, rate, caption, note);
+  return section;
 }
 
 function renderTrialFeedback(question, selectedTile, isRecommended, isCorrect) {
@@ -364,7 +403,10 @@ function renderQuestion() {
     state.liveCandidates = new Set(question.candidates);
   }
 
-  elements.questionIndex.textContent = `第 ${state.questionIndex + 1} / ${questions.length} 题`;
+  const setInfo = currentSet();
+  elements.questionIndex.textContent = `第 ${setInfo.position} / ${setInfo.length} 题${
+    setInfo.setCount > 1 ? ` · 第 ${setInfo.setNumber} / ${setInfo.setCount} 套` : ""
+  }`;
   elements.questionTitle.textContent = question.title;
   elements.wallMeta.textContent = `牌墙 ${question.wallRemaining} 张`;
   elements.promptText.textContent = question.prompt;
@@ -380,7 +422,15 @@ function renderQuestion() {
 }
 
 function nextQuestion() {
-  state.questionIndex = (state.questionIndex + 1) % questions.length;
+  const setInfo = currentSet();
+  if (state.setComplete) {
+    state.questionIndex = setInfo.hasNextSet ? setInfo.end : setInfo.start;
+    state.setAnswered = 0;
+    state.setCorrect = 0;
+    state.setComplete = false;
+  } else {
+    state.questionIndex += 1;
+  }
   renderQuestion();
   document.querySelector("#workspace").scrollIntoView({ behavior: "smooth", block: "start" });
 }

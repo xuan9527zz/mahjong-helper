@@ -51,6 +51,11 @@ test("V3 试用入口启用详细解析并保留缺失解析时的安全回退",
   assert.match(app, /!TRIAL_MODE && !hasDetailedExplanation/);
   assert.match(app, /TRIAL_MODE && !hasDetailedExplanation/);
   assert.match(app, /含详细解析/);
+  assert.match(app, /QUESTION_SET_SIZE/);
+  assert.match(app, /state\.setCorrect \+= 1/);
+  assert.match(app, /renderSetSummary/);
+  assert.match(app, /再练本套/);
+  assert.match(app, /下一套/);
   assert.match(app, /liveModeButton\.hidden = true/);
-  assert.match(html, /app\.js\?v=0\.1\.18/);
+  assert.match(html, /app\.js\?v=0\.1\.19/);
 });
