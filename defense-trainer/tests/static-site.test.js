@@ -36,7 +36,7 @@ test("核心响应式断点与窄屏牌桌规则存在", () => {
   assert.match(css, /\.seat-right \.river\s*{\s*left:\s*max\(14%, calc\(100% - 65px\)\)/);
   assert.match(css, /\.table-center\s*{\s*width:\s*78px;\s*height:\s*78px/);
   assert.doesNotMatch(css, /\.seat-left \.river \.tile-card\.discard-recent/);
-  assert.match(html, /styles\.css\?v=0\.1\.28/);
+  assert.match(html, /styles\.css\?v=0\.1\.29/);
 });
 
 test("三家牌河都以每排六张围绕中央区域排列", () => {
@@ -52,13 +52,14 @@ test("副露位于牌河外侧并在手机端保持显示", () => {
   assert.match(html, /id="selfMeldZone"/);
   assert.match(app, /renderMelds\(elements\.selfMeldZone, self\.melds\)/);
   assert.match(css, /\.seat-self \.self-meld-zone/);
-  assert.match(css, /\.seat-top \.meld-zone\s*{[\s\S]*?position:\s*absolute;[\s\S]*?bottom:\s*0;[\s\S]*?left:\s*calc\(50% - 124px\);[\s\S]*?flex-direction:\s*column-reverse;[\s\S]*?margin:\s*0;[\s\S]*?--tile-w:\s*12px/);
+  assert.match(css, /\.seat-top \.river\s*{[\s\S]*?grid-row:\s*2;[\s\S]*?grid-column:\s*1;[\s\S]*?align-self:\s*start/);
+  assert.match(css, /\.seat-top \.meld-zone\s*{[\s\S]*?position:\s*relative;[\s\S]*?grid-row:\s*2;[\s\S]*?grid-column:\s*1;[\s\S]*?align-self:\s*start;[\s\S]*?justify-self:\s*start;[\s\S]*?flex-direction:\s*column-reverse;[\s\S]*?margin:\s*0 0 0 calc\(50% - 124px\);[\s\S]*?--tile-w:\s*12px/);
   assert.match(css, /\.seat-top \.meld\s*{\s*transform:\s*rotate\(180deg\)/);
   assert.match(css, /\.seat-left \.meld-zone\s*{[\s\S]*?flex-direction:\s*column-reverse;[\s\S]*?scale\(0\.58\) rotate\(90deg\)/);
   assert.match(css, /\.seat-right \.meld-zone\s*{[\s\S]*?flex-direction:\s*column-reverse;[\s\S]*?scale\(0\.58\) rotate\(-90deg\)/);
   assert.doesNotMatch(css, /@media \(max-width: 650px\)[\s\S]*?\.seat-top \.meld-zone\s*{[\s\S]*?scale\(0\.46\) rotate\(180deg\)/);
   assert.doesNotMatch(css, /@media \(max-width: 650px\)[\s\S]*?\.seat-top \.meld-zone\s*{[\s\S]*?flex-direction:\s*row/);
-  assert.match(html, /styles\.css\?v=0\.1\.28/);
+  assert.match(html, /styles\.css\?v=0\.1\.29/);
 });
 
 test("练习题已完整替换为自然晚巡V2十题题库", () => {
@@ -163,3 +164,4 @@ test("详细解析采用手机端单列折叠卡且禁止横向溢出", () => {
   assert.match(feedbackCss, /@media \(max-width: 650px\)[\s\S]*?\.candidate-metric-list,[\s\S]*?grid-template-columns:\s*minmax\(0, 1fr\)/);
   assert.match(feedbackCss, /overflow-wrap:\s*anywhere/);
 });
+
