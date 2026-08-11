@@ -1529,17 +1529,6 @@ dialog ol {
     left: max(8%, calc(100% - 71px));
   }
 
-  .seat-left .river .tile-card.discard-recent,
-  .seat-right .river .tile-card.discard-recent {
-    z-index: 5;
-    outline: 2px solid var(--acid);
-    outline-offset: 1px;
-    box-shadow:
-      inset -2px -2px 0 rgba(6, 45, 40, 0.08),
-      0 2px 0 #a9a294,
-      0 0 9px rgba(221, 245, 111, 0.8);
-  }
-
   .river {
     gap: 2px;
     padding: 4px;
@@ -1566,22 +1555,31 @@ dialog ol {
   }
 
   .table-center {
-    width: 108px;
-    height: 108px;
-    border-radius: 15px;
+    width: 78px;
+    height: 78px;
+    border-radius: 11px;
+    box-shadow:
+      0 8px 18px rgba(0, 0, 0, 0.22),
+      inset 0 0 0 4px rgba(255, 255, 255, 0.025);
   }
 
   .table-center::before {
-    inset: 7px;
-    border-radius: 10px;
+    inset: 5px;
+    border-radius: 7px;
+  }
+
+  .table-center small,
+  .table-center span {
+    font-size: 8px;
   }
 
   .table-center strong {
-    font-size: 29px;
+    font-size: 24px;
   }
 
   .table-center p {
-    font-size: 9px;
+    margin-top: 3px;
+    font-size: 8px;
   }
 
   .meld-zone:not(:empty) {
