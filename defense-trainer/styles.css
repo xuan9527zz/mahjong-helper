@@ -1584,9 +1584,15 @@ dialog ol {
 
   .seat-top .meld-zone {
     top: 27px;
-    left: -3px;
-    transform: scale(0.46) rotate(180deg);
-    transform-origin: top left;
+    left: 50%;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    transform: translateX(-50%) scale(0.62);
+    transform-origin: top center;
+  }
+
+  .seat-top .meld {
+    transform: rotate(180deg);
   }
 
   .seat-left .meld-zone {

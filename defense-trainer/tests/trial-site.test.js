@@ -68,6 +68,20 @@ test("逐张解析顺序与题面一致，公开分析和事后真相隔离", ()
   }
 });
 
+test("T02 对家四组副露完整保留，包含两组条子", () => {
+  const question = questions.find((item) => item.id === "T02");
+  assert.ok(question);
+  assert.deepEqual(
+    question.opponents.top.melds.map((meld) => meld.tiles),
+    [
+      ["F", "F", "F"],
+      ["8p", "8p", "8p"],
+      ["1s", "1s", "1s"],
+      ["4s", "4s", "4s"],
+    ],
+  );
+});
+
 test("网站入口继续使用每 10 题结算、错题练习和下一套流程", () => {
   assert.match(app, /TRIAL_MODE = TRIAL_VARIANT === "v3"/);
   assert.match(app, /trial-questions\.js\?v=0\.1\.21/);
