@@ -36,7 +36,7 @@ test("核心响应式断点与窄屏牌桌规则存在", () => {
   assert.match(css, /\.seat-right \.river\s*{\s*left:\s*max\(14%, calc\(100% - 65px\)\)/);
   assert.match(css, /\.table-center\s*{\s*width:\s*78px;\s*height:\s*78px/);
   assert.doesNotMatch(css, /\.seat-left \.river \.tile-card\.discard-recent/);
-  assert.match(html, /styles\.css\?v=0\.1\.26/);
+  assert.match(html, /styles\.css\?v=0\.1\.27/);
 });
 
 test("三家牌河都以每排六张围绕中央区域排列", () => {
@@ -53,11 +53,13 @@ test("副露位于牌河外侧并在手机端保持显示", () => {
   assert.match(app, /renderMelds\(elements\.selfMeldZone, self\.melds\)/);
   assert.match(css, /\.seat-self \.self-meld-zone/);
   assert.match(css, /\.seat-top\s*{[\s\S]*?grid-template-rows:\s*auto auto 1fr/);
-  assert.match(css, /\.seat-top \.meld-zone\s*{[\s\S]*?position:\s*relative;[\s\S]*?flex-direction:\s*column-reverse;[\s\S]*?transform:\s*none;[\s\S]*?--tile-w:\s*12px/);
+  assert.match(css, /\.seat-top \.meld-zone\s*{[\s\S]*?position:\s*relative;[\s\S]*?flex-direction:\s*column-reverse;[\s\S]*?margin:\s*-2px 0 4px -36px;[\s\S]*?transform:\s*none;[\s\S]*?--tile-w:\s*12px/);
   assert.match(css, /\.seat-top \.meld\s*{\s*transform:\s*rotate\(180deg\)/);
+  assert.match(css, /\.seat-left \.meld-zone\s*{[\s\S]*?flex-direction:\s*column-reverse;[\s\S]*?scale\(0\.58\) rotate\(90deg\)/);
+  assert.match(css, /\.seat-right \.meld-zone\s*{[\s\S]*?flex-direction:\s*column-reverse;[\s\S]*?scale\(0\.58\) rotate\(-90deg\)/);
   assert.doesNotMatch(css, /@media \(max-width: 650px\)[\s\S]*?\.seat-top \.meld-zone\s*{[\s\S]*?scale\(0\.46\) rotate\(180deg\)/);
   assert.doesNotMatch(css, /@media \(max-width: 650px\)[\s\S]*?\.seat-top \.meld-zone\s*{[\s\S]*?flex-direction:\s*row/);
-  assert.match(html, /styles\.css\?v=0\.1\.26/);
+  assert.match(html, /styles\.css\?v=0\.1\.27/);
 });
 
 test("练习题已完整替换为自然晚巡V2十题题库", () => {

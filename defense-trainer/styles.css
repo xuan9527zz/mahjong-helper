@@ -1590,7 +1590,7 @@ dialog ol {
     align-self: start;
     justify-self: start;
     flex-direction: column-reverse;
-    margin: -2px 0 4px 3px;
+    margin: -2px 0 4px -36px;
     transform: none;
     --tile-w: 12px;
     --tile-h: 17px;
@@ -1603,14 +1603,16 @@ dialog ol {
   .seat-left .meld-zone {
     bottom: 5px;
     left: 1px;
-    transform: scale(0.46) rotate(90deg);
+    flex-direction: column-reverse;
+    transform: scale(0.58) rotate(90deg);
     transform-origin: bottom left;
   }
 
   .seat-right .meld-zone {
     right: 1px;
     bottom: 5px;
-    transform: scale(0.46) rotate(-90deg);
+    flex-direction: column-reverse;
+    transform: scale(0.58) rotate(-90deg);
     transform-origin: bottom right;
   }
 
