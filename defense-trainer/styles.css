@@ -1468,6 +1468,7 @@ dialog ol {
   }
 
   .seat-top {
+    grid-template-rows: auto auto 1fr;
     padding: 6px 3px 0;
   }
 
@@ -1583,12 +1584,16 @@ dialog ol {
   }
 
   .seat-top .meld-zone {
-    top: 27px;
-    left: 50%;
-    flex-direction: row;
-    flex-wrap: nowrap;
-    transform: translateX(-50%) scale(0.62);
-    transform-origin: top center;
+    position: relative;
+    top: auto;
+    left: auto;
+    align-self: start;
+    justify-self: start;
+    flex-direction: column-reverse;
+    margin: -2px 0 4px 3px;
+    transform: none;
+    --tile-w: 12px;
+    --tile-h: 17px;
   }
 
   .seat-top .meld {
